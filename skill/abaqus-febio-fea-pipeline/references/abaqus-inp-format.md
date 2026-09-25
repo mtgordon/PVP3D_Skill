@@ -487,7 +487,15 @@ converted FEBio model.
   kept, the midline moved 14 % less in-plane than its neighbours: a visible
   groove. The springs also carried ~20 % of the net applied load. "The symmetry
   plane looks stiff in y and z" was the springs, not the BC. Nodes beside the
-  plane moved only 0.2 mm sideways, so the BC itself was doing little.
+  plane moved only 0.2 mm sideways, so the BC itself was doing little. The rest
+  of those springs (145, on the apex, the perineal body and orphan nodes; the
+  source `.inp` had no springs, dashpots or stabilization at all) held the apex
+  with ~3 N at full load. That was three times what all four ligament families
+  there carried (~0.9 N), so the model's apex support was mostly the converter's
+  springs. Without them the wall moved forward freely, which the user found
+  realistic, and the dynamic run crawled (`convergence-debugging.md`, slower
+  ramp). Stiffer ligaments are no substitute: at full strength the apex still
+  moved twice as far as with the springs.
 
   ```bash
   # Abaqus *Boundary nset names

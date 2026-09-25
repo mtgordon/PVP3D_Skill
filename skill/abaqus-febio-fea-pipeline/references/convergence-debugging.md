@@ -477,6 +477,16 @@ Two readings of that output are worth distinguishing:
    the last state, and running on to t = 2 would have moved it only ~0.5 mm. So stop such a run, and
    report the fitted asymptote as an estimate.
 
+   **Mid-ramp states lag too, and a slower ramp shows by how much.** The same model with its load ramped
+   over 3 s instead of 1 s (step size scaled with it) had an LA displacement 2.5x larger at the same load
+   level (65 %), then snapped through at 81 %. So a 1 s dynamic run's mid-ramp states are not points on the
+   load-displacement curve. A slower ramp cuts speeds with the ramp time and inertial forces with its
+   square: the cleaner route to the loaded state, since it adds no dissipation. It is not like for like with a
+   source's own ramp timing, so keep the source's ramp for a time-history comparison. Mass damping from
+   t = 0 (C = 20/s) cut the early failures but stalled at the same point. It also slowed the transient
+   visibly, because the wall moved at 100-200 mm/s, ~10x the quasi-static speed the damping had been
+   sized for. Measure the speeds before sizing damping.
+
    **Screening runs stalled where the damping switched on.** Six variants of a later model reached full
    load (t = 1). All then stalled within t = 1.00-1.05, where the mass damping ramped from 0 to C = 20/s in
    0.05 s. For screening, end at t = 1 and keep the settle for the chosen model. Otherwise ramp the damping
