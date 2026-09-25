@@ -1,0 +1,6 @@
+base: F:\Developing PVP3D Model for FEBio\claude_diag\runs\L11_stab\L11_stab.feb
+NOT IN SOURCE (numerical): mass damping settle_damping (C = 20/s) on from t = 0: load curve settle_on ['1.0,0', '1.05,1'] -> [0,1; 1.05,1] (it drives only the damping); Abaqus explicit has no such damping
+NOT IN SOURCE: Load-AVW pressure 0.014 -> 0.00466667 MPa (x0.3333); the other pressure loads unchanged
+NOT IN SOURCE: Load-PVW pressure 0.014 -> 0.00466667 MPa (x0.3333); the other pressure loads unchanged
+NOT IN SOURCE: Load-PeB-top pressure 0.014 -> 0.00466667 MPa (x0.3333); the other pressure loads unchanged
+NOT IN SOURCE: Load-top pressure 0.014 -> 0.00466667 MPa (x0.3333); the other pressure loads unchanged
