@@ -440,6 +440,41 @@ converted FEBio model.
        their own right. Lofts fitted to near-zero connectors made convergence worse
        (a membrane of almost no stiffness, with hundreds of interior nodes) and
        passed only with the line search on.
+  6. **Once the converter's extra supports are gone, the soft lofts decide whether
+     the model runs.** Without the ground springs, at the source loads, the tissue
+     moved far and fast. Every version with lofts crawled at 65-84 % load. The
+     one-change variants were the exact pressure tangent, lofts at tissue density,
+     mass damping, a slower ramp, and the AVW-Para or CL/USL lofts as connectors.
+     The fastest nodes (270-600 mm/s) and lowest J were in the near-zero lofts; with
+     those gone, in the P-arcus lofts. With every loft as its connectors, the same model passed that
+     point with one failed attempt. Keeping the user's four stiffer fitted lofts
+     (AVW-Para, CL, USL, PM) and making only the soft ones (the near-zero families
+     and P-arcus) connectors also reached full load. The LA was the same within 1 %
+     in both (33.1 vs 33.3 mm median). So test the soft lofts first when a
+     loft model stalls. A loft brings its own nodes, and they need stiffness and
+     mass; a connector has neither need.
+  7. **Take out what a loft spliced into a chain when the loft goes.** An earlier fix
+     had made the loft's edge nodes chain nodes by splitting the spring chain (18 ->
+     26 springs per side), but not the chain's mass elements. With the loft removed,
+     those 16 nodes had no element and no mass and sat between two collinear
+     springs. They were singular: 850 negative Jacobians in the first step at almost
+     zero load. Before removing a domain, list the nodes that would be left only in
+     springs (or only in constraints). Merge their springs back, since a
+     strain-measure law is unchanged by the merge.
+
+- **`*Display Body, instance=X` is a reference-only part.** Abaqus draws it but leaves it out of the analysis: it has
+  nodes and elements, often no section or material, and no ties or connectors. A converter can drop it silently.
+  List every `*Instance` against the FEBio domains to catch it. To show it in FEBio without changing the solution,
+  give it new nodes (shared with nothing) and a `type="rigid body"` material, then fix it in all six DOFs with
+  `<Rigid><rigid_bc type="rigid_fixed"><rb>material name</rb>` and `Rx_dof` ... `Rw_dof` set to 1. `<Rigid>` goes
+  after `<Boundary>`. A rigid shell domain rejects `shell_normal_nodal`; give it a display-only thickness.
+
+- **To find what holds a part, list everything on its nodes and compute each force.** For a part that barely moves,
+  collect every attachment to its nodes: shared domains, each BC and which DOFs it fixes, springs and their other ends,
+  constraints, contact surfaces and loads. Then sum each spring family's force at the state of interest. In the
+  reference model the perineal body looked held; in fact its fixed-anchor connectors carried ~0 N (impaired in the
+  source), its midline BC fixed x only, and it hung from the levator by 40 sphincter connectors (4 N up, 3 N back). So
+  it followed the levator and ignored the ligament strength being varied.
 
 - **Audit connector families by both ends, not by the part under study.** A
   connector audit that asks "is any connector to part X missing?" misses a
@@ -542,3 +577,15 @@ awk '/^\*Assembly/{a=1} /^\*End Assembly/{a=0} a&&/^\*Node/{getline; print}' mod
 # Analysis procedure and contact pairs (both live in the *Step, not the Assembly)
 awk '/^\*Step/{f=1} f&&/^\*(Static|Dynamic|Contact Pair|Dsload|Amplitude)/' model.inp
 ```
+
+## Connector tables named `...-x%stiff` are one impairment case
+
+A source whose connector behaviors are all named `...-x%stiff` is a parameterised template: its tables are one
+impairment case of a study, not "normal" tissue. Compare the families' tables with each other before calling one weak
+or strong (in the reference model: the posterior paravaginal connectors 0.117 N at 4.7 mm = 20 % of the anterior
+paravaginal 0.583 and 2 % of the perineal membrane's 5.83; three perineal-body families at 1e-5 of it, i.e. detached),
+and read the source paper's impairment scheme. Luo et al. 2015 (J Biomech, the rectocele model) define impairment as
+reduced stiffness, 90 % = "totally detached", pressures 0-150 cm H2O (140 cm H2O = 0.0137 MPa) on both walls, the
+perineal body and the levator. Map the paper's structures to the families by the behavior names (its posterior
+paravaginal support = `LA-Y-parcus-*`, apical = CL/USL, the levator material `LA_Yamada50%`). A target figure from the
+paper names its impairment levels; that is the recipe to reproduce, and the source file may be a different case.

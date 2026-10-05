@@ -89,6 +89,16 @@ See `febio-xml-format.md` gotchas 9-10 -- the first means a contact is
 silently doing nothing (check the real gap vs. the tolerance), the second is
 usually harmless orphaned geometry.
 
+**A log that simply stops**, mid-iteration, with no error, no termination line
+and no crash report, is not a numerical failure: the process was killed, or it
+could not get memory. On Windows, check the commit charge (committed bytes
+against the commit limit) and which process holds it before debugging the
+model. In the reference project a result viewer left open for a day held 53 GB
+of commit with a 1.7 GB working set, leaving 1.7 GB of ~100 GB; two long runs
+died that way while RAM was still free, and the next run went through once the
+viewer's files were closed. A page file on a nearly full disk cannot grow.
+Check the commit charge before starting long runs too.
+
 ## Getting per-element detail: the interactive console, and why it must be single-threaded
 
 The plain `-i` invocation only ever reports an aggregate count ("N negative
@@ -181,7 +191,12 @@ Two readings of that output are worth distinguishing:
    floppy membranes, truss chains with free interior nodes and dangling flaps
    that a static implicit FEBio solve cannot. Knowing that up front tells you
    to hunt for near-mechanisms and degenerate reference geometry rather than
-   to tune the solver.
+   to tune the solver. It also tolerates a contact that rattles at a surface
+   edge: two separately meshed parts closed only by a frictionless contact
+   (a "seam") whose edge nodes flip on and off the other part's last facet
+   stall FEBio's implicit solver once the parts are soft enough to move far,
+   and no contact or solver setting removes it (see "A contact-only seam"
+   below).
 
 1. **Get a baseline number.** Run the model as given (or the last known
    version) and record: time steps completed, the `time=` value reached, and
@@ -304,7 +319,8 @@ Two readings of that output are worth distinguishing:
      run. The log shows which rule is active: failed-attempt times that step down by
      a constant (0.69926, 0.699057, 0.698854 ... = dt0/21 with max_retries 20) are the
      linear rule. In the reference project every file had carried an inert
-     `cutback` from the start. Counterintuitively, more patience
+     `cutback` from the start. A live cutback earns its place in crawls and at snaps (below:
+     "In a crawl, make the cutback real"). Counterintuitively, more patience
      (smaller minimum step, more retries, more stiffness reformations)
      sometimes makes a specific failure *worse*, not better, especially
      once other structural fixes have already changed the character of the
@@ -496,6 +512,78 @@ Two readings of that output are worth distinguishing:
    variants. The unfaithful alternative did not do as well: with the same dynamics, the source's material
    refit as a 1-term Ogden failed at 0.69, while the faithful I1-only law went to full load.
 
+   **Mass damping acts on every mass, so list the masses first.** A run with the load held after t = 1 (C =
+   20/s) crept instead of settling: the LA grew 50 % in 1 s, still ~3 mm/s at the end, and the settle fit
+   found no asymptote (tau 6-20 s). The model's largest mass was the source's truss chain: density 1e5 x
+   tissue (a mass-scaling device in the explicit source) at 1 mm2, 33 kg, and 329 kg on the x10 screening
+   base, against 70 g of tissue. C = 20/s on 329 kg is ~33 N of drag at 5 mm/s, about the whole applied load.
+   So a damped run that looks clean can be the damping holding the heavy part back, not an equilibrium. Sum
+   the mass per domain before choosing C (density x volume; include mass-only trusses). Then take C near
+   2 omega of the slow mode: from the creep, omega^2 ~ C / tau. Here that is ~1.4 rad/s, so C ~ 2-3/s.
+
+   **In a crawl, make the cutback real; linear retries end the run at a snap.** Where runs crawled,
+   `aggressiveness 1` with `cutback 0.5` (halve the step at each retry) cut the failed attempts 2-5x for the
+   same progress. It changed nothing in smooth runs. With the default linear rule, 20 retries only reach
+   dt0/21. A fast event (a chain flipping from compression into tension, nodes at 1 m/s) then ended the run
+   with an error at t 0.912, while the halving twin got through. Many retries in a crawl also failed in
+   their first iteration. The line search cut the first update to 6 %, the residual barely fell, and ~115
+   elements then inverted. That points at nearly massless, nearly stiffness-free nodes (a loft with c1 ~1e-4
+   MPa at tissue density) rather than at the load step.
+
+   **For speed, cap the Newton work per step rather than raising the step.** On a model that ran cleanly, a larger
+   `dtmax` (0.01, 0.02 against 0.005) gave the same solution but was slower: fewer steps, each needing many more
+   iterations, with more failed attempts. Lowering the auto-stepper's `opt_iter` from 25 to 10 was faster on both
+   support variants (40 -> 28 and 28 -> 23 min), because the stepper stops growing the step once a step needs
+   more than ~10 iterations. Count iterations and reformations from the log as well as wall time: runs sharing the
+   machine with fewer others finish sooner for that reason alone.
+
+   **Compute which way each pressure pushes before reasoning about it.** A surface load's resultant is
+   F = -p sum(n A) over its facets (FEBio: a positive pressure acts against the facet normal). In the reference model the
+   anterior- and posterior-wall loads were almost equal and opposite (+-0.83 y, +-0.56 z), so the walls moved mostly
+   down, carried by the apex. A claim that the posterior-wall load pushed the wall onto the levator was wrong: that load
+   pushed it away, and the wall came down with the anterior wall and the loosely held apex. Also check the displacement of
+   both sides where a contact closes (who moved) before blaming one load.
+
+   **After a snap, look for a contact that has just started touching.** Right after the chain snap, one run
+   crawled with all its fastest nodes (up to 6 m/s) in the wall next to a sliding-elastic pair. That pair
+   had been open all run and now touched at 1-2 facets. Removing the pair (diagnostic only) gave t = 1 in
+   46 min with 3 failed attempts; a 10x softer penalty (`auto_penalty` kept) gave t = 1 with 30. The LA was
+   within 0.2 mm of either run. To judge what a contact does, measure the deformed surface-to-surface
+   distance in the run without it: here 4-6 of 729 nodes came up to 1.4 mm into the offset shell. Keep the
+   source's contact with the softer penalty rather than dropping it.
+
+   **Then find which pass and which facets carry that first touch.** The plot file stores contact pressure
+   and gap per facet for both surfaces of every pair, and `scripts/xplt_reader.py` names them (`x.surfaces`).
+   In the reference model the pressure was only ever on the *secondary* surface: the two-pass second pass
+   (levator nodes projected onto the wall's facets) carried all of it, and no wall node touched. The touching
+   facets sat on the lateral edge row of the wall's contact surface, where soft connectors attach. The first
+   0.013 s were smooth (steps ~2.5e-3, pressure rising 0.003 -> 0.013 MPa). Then one projection dropped off
+   the edge row, the touching-facet count flickered 2 / 1 / 0 from step to step, the edge nodes reversed
+   direction every step at 2-10 m/s, and every failed attempt met the energy norm while the displacement norm
+   cycled with line-search steps near 0. To find it: take nodal speeds from the displacement change between
+   converged states, look for nodes that reverse direction each step, then measure their deformed distance to
+   the touching facets and check whether they are boundary nodes of the contact surface (edges used by one
+   facet only). The same edge row touched first in a second model with different loads. With the pair removed
+   the rattle vanished; with a 10x softer penalty it came later and weaker. `knmult 1` (the forum's advice for
+   frictionless sliding-elastic) and `search_tol` 0.01 -> 0.1 each left it unchanged (206 and 155 failed
+   attempts by t 0.917 / 0.913, against 137 by 0.914). `seg_up` 2 got past the first onset, and then the
+   wall's own edge facets touched via the first pass; `two_pass` 0 met those same facets. **It was a pinch**:
+   the soft connectors at the edge tie the wall to a truss chain that is tied to the other surface, so as the
+   chain sagged they pulled the wall's edge onto it. Removing only the 30 facets that hold a connector end from
+   the contact surface (NOT IN SOURCE) reached t = 1 at the stiff penalty with 46 failed attempts and the same
+   solution within 0.1 mm; the edge then sat up to ~2 mm inside the contact offset there. When a contact stalls
+   at an edge, check whether something connected to both surfaces pulls them together at that spot.
+
+   **A facet fix holds only for the load case it was found in.** The same model with less pressure on the
+   levator, or with softer walls, met it earlier, on the same edge row but at other facets, and crawled again
+   at the stiff penalty. `seg_up` 2 on that pair then took every case to t = 1: 0 failed attempts and the same
+   solution, costing nothing where the facet fix already worked. On a contact that slides over large areas (a
+   closed canal whose two walls touch everywhere), `seg_up` 2 was far worse (2085 failed attempts), because
+   frozen facet choices block the sliding. Two surfaces that meet edge to edge along a seam (the canal's side
+   walls share no nodes) rattle there when the walls are soft. Removing one side's seam row moved the rattle one
+   row inward. The FEBio manual (3.13.1) and the lead developer on the forum name `seg_up` for points that keep
+   alternating between facets. Test each fix on every load case you will run, not just the one that stalled.
+
    **Before adding stiffness or mass, look for the sideways support the chain has lost.** Take each chain
    node's zig-zag drift (its displacement minus the mean of its two neighbours', across the chain). Split
    it along the candidate support directions: the normal of the sheet tied to the chain, and the direction
@@ -542,10 +630,54 @@ Two readings of that output are worth distinguishing:
    A membrane fan supports the chain only in its own plane, so the next weakest direction takes over.
    The same happened dynamically (chain mass x10) at t = 0.75.
 
+   A crawl with nothing distorted can be a floppy loft. In the reference model, weakening the posterior
+   paravaginal connectors made only the lofts version crawl (t ~0.43 in every variant): all J 0.99-1.06,
+   ~40 mm/s, the failed steps failing on the displacement norm with the energy converged, 75 zero line
+   steps. The fastest nodes sat in the anterior paravaginal lofts, which the freed posterior wall pushed
+   toward their anchors. A loft can carry compression and go floppy; a tension-only connector cannot.
+   Merging the nearby tie and loosening dtol did nothing; swapping those two lofts for their source
+   connectors ran to full load with one failed attempt. When only the loft version crawls, swap the lofts
+   near the fastest nodes for their connectors before tuning the solver.
+
 4. **Report a comparison table, not just the final answer**, when handing
    this off or writing it up -- "steps completed / time reached / failure
    type" for every variant tried is what lets someone else (or a future
    session) avoid re-deriving conclusions that already exist.
+
+## A contact-only seam between separately meshed parts
+
+In the reference model the vaginal walls (anterior and posterior) share no nodes; the canal is closed at its two long
+side edges only by the source's frictionless contact, whose surfaces meet edge to edge there (0.12-0.36 mm apart). With
+the converter's walls (3x too stiff at small strain) the seam slides up to 16 mm and opens up to 21 mm and the runs
+converge; with the source-faithful walls it opens up to 39 mm, edge nodes on both sides reverse direction step to step
+(0.2-2 m/s) and each step's displacement norm stalls. Find it by measuring each edge node's motion relative to the point
+of the other surface it faced at rest (normal = opening, in-plane = sliding). What was tried (one change each):
+- contact settings (search_tol, knmult, penalty, two_pass, seg_up), full Newton, dtol, rhoi 0: none passed; `seg_up` 5
+  went furthest, then failed with frozen facets;
+- a tie at the rest offset (weighted linear constraints, febio-xml-format.md gotcha 27): converges, but joining the seam
+  lifted one wall 14 mm and changed how the other responds across the load cases;
+- zero-length springs of k N/mm per node: the answer moves from free to tied between 1e-4 and 1e-2 N/mm (a few newtons
+  over the whole seam hold it: a near-mechanism); only k >= 0.01 converged, i.e. only springs that change the answer;
+- a sliding contact that cannot open (`tension` 1 with an offset): stalled even with the stiffer walls;
+- the Abaqus source has the same free seam and runs it explicitly; FEBio's `explicit-solid` handles the flipping in mini
+  tests with damping (gotcha 28), at the cost of mass-proportional damping and ~1e5-1e6 steps.
+
+What converged with the seam left free (the next day, one change each):
+- **Find which side moves.** Split each edge node's relative motion into the node's own displacement and the facing
+  point's, along the opening direction. Here the soft wall's free distal edges bulged out 35 mm while the other wall
+  stayed put. The part whose edges peel is the one to look at, but stiffening only that part reached 96-97 % of the load.
+- **Stiffer parts, uniformly:** the Yeoh refit's small-strain term c1 x1.5 (c2, k kept) converged; x1.25 crawled at 85-94 %.
+  The "faithful" refit was itself 23-29 % soft below 10 % strain against the source's piecewise-linear data (gotcha 23),
+  so x1.5 was no further from the source at small strain. The answer moves with the stiffness: that is physics, not the
+  fix. Show it at matching load against the soft run, which does reach part of the load.
+- **Stiffen the elements at the peel front**: the same x3 in only the ~10 % of elements within 3 mm of the seam, the rest
+  soft (a mapped c1, febio-xml-format.md gotcha 29). It converged with the seam as open as before, and its answer was
+  within ~1 mm of the soft parts' at matching load. This was the most faithful fix found. What stalls is the elements at
+  the front, not the opening.
+- **Not directional stiffness:** tension-only fibres across or along the seam did not help; along it they stalled
+  earlier.
+- **A looser displacement tolerance** (dtol 0.001 -> 0.01) carried a near-converging case with the same answer (within
+  0.2 mm) in half the iterations. It did not carry the fully soft case.
 
 ## When to stop guessing and ask for human input
 

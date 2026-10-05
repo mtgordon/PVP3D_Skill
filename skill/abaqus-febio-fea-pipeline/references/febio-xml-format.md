@@ -291,6 +291,11 @@ replacement that worked, verified to about 1e-6 mm over 199 ties on a full model
 gotcha 18: tie each Abaqus slave node to its master node with linear
 constraints, and delete the phantom nodes, ribbon surfaces and tied contacts.
 
+A `tied-node-on-facet` tie takes only the primary nodes within `max_distance` of the secondary facets, not the whole
+primary surface (in the reference model 10 of 1666 and 3 of 1680). Where those nodes coincide with secondary nodes,
+merging each pair (re-pointing the secondary's elements to the primary node) is an exact replacement for the tie and
+removes a contact from the solve. Check first that no other primary node lies within `max_distance` of the facets.
+
 **A structurally different case where the spring fix *did* work, confirmed**:
 the failure mode above is specifically about a node with *no* stiffness
 contribution of its own -- a true "phantom" that exists only for tie geometry.
@@ -879,3 +884,113 @@ pinned ends at 0.13, and a non-symmetric global matrix at exactly the same 0.13.
 away at an LA-perineal body connector region (negative jacobians in the PeB and LA), not at the arcus.
 The cause is not yet known. Test the combination (beam + linear-constraint ties + tension-only connectors)
 in a mini model before relying on it.
+
+### 26. FEBio 4.13 still has mid-surface shells (`elastic-shell-old`); the thickness treatment barely moves a soft pressurised shell
+
+`febiomech.dll` lists the ShellDomain types `elastic-shell` (the default: nodes on the front face, back-face
+DOFs sx/sy/sz), `elastic-shell-eas` and `elastic-shell-ans` (quad4 only), `three-field-shell`, `rigid-shell`, and
+`elastic-shell-old` / `rigid-shell-old`: the pre-2.6 formulation, nodes on the mid-surface with director DOFs, the
+closest FEBio has to an Abaqus conventional shell (S4R). The old Control switch `shell_formulation` is also still
+read. `clamp_shells` exists but belongs to rigid node sets and does nothing (release notes 4.1).
+
+`elastic-shell-old` rejects `<shell_thickness>` in the domain (`tag "shell_thickness" : unrecognized tag`). Give the
+thickness per element node in MeshData, with `elem_set` = the `<Elements name>` (verified, 4.13):
+
+```xml
+<MeshDomains><ShellDomain name="LA" mat="LA" type="elastic-shell-old"/></MeshDomains>
+<MeshData>
+  <ElementData name="LA_t" type="shell thickness" elem_set="LA"><e lid="1">4,4,4,4</e> ... </ElementData>
+</MeshData>
+```
+
+It takes no `shell_normal_nodal`: its nodal normals are averaged, so tight folds invert at rest (gotcha 19). In the
+reference levator 5 of 1170 elements did (thinned to 1 mm to start), and another fold inverted under load.
+
+The thickness treatment hardly matters for a soft shell under pressure. A pinned 60x60x4 mm panel (12x12 quads,
+Yeoh c1 0.0100393, c2 0.0172014, k 1, 0.014 MPa) deflected 30.7 mm with the default shell (top face pinned), 30.9
+with the back face pinned too, 30.6 with `elastic-shell-old`, 30.2 with `elastic-shell-ans`, and 31.0 / 31.8 / 30.3
+as a 4-layer hex pinned at the top face / mid-thickness / through the thickness (`elastic-shell-eas` stopped
+converging at 71 % of the pressure). The forum (Ateshian) calls the default shell artificially stiff (hex
+interpolation collapsed onto a surface) and recommends `quad4` + `elastic-shell-eas`; it also calls
+`shell_normal_nodal` 0 a special option for shell intersections. In the full reference model, mid-surface shells,
+the back face held at the pins and a doubled thickness changed the levator's displacement by 8, 5 and 20 %.
+
+### 27. Linear constraints as springs, weighted ties to a facet, and a sliding contact that cannot open
+
+A `<linear_constraint>` accepts several weighted nodes, so a node can be tied to a *point on a facet* at its rest offset:
+per dof, `u_node - sum_k w_k u_k = 0`, with `w_k` the facet's shape functions at the node's projection (verified in FEBio
+4.13 on a two-block model: the 0.2 mm rest offset kept to 6e-6 mm at penalty 10, maxaug 10, ~2 augmentations a step).
+With `<maxaug>0</maxaug>` the constraint is never augmented and acts as a **zero-length spring of stiffness `penalty` N/mm
+in each direction** between the node and that point (the stretch grows as the penalty drops: 0.034 / 0.24 / 0.69 mm at
+1 / 0.1 / 0.01 N/mm in the same test). That joins two separately meshed parts elastically without a contact.
+
+`sliding-elastic` with `<tension>1</tension>` holds surfaces together but lets them slide (Steve Maas on the FEBio forum:
+"kind of like tied contact, but displacement along the surface is still allowed"; others warn it can be non-physical).
+It pulls any rest gap shut at once: a 0.2 mm gap snapped in the first iteration and inverted 27 elements; `node_reloc` 1
+did not help; `<offset>` equal to the rest gap did. With a spread of rest gaps (0.12-0.36 mm around a 0.21 offset) a 10x
+penalty still inverted elements at the start. On a full model the grab / release of nodes at facet edges stalled the
+implicit solver early (steps ~1e-6) even where the plain contact converged, and nodes pulled beyond `search_radius` were
+let go (the seam opened 32 mm). Test it on the real geometry before relying on it.
+
+### 28. FEBio's explicit solver (`explicit-solid`): it runs, it needs damping, and its damping is mass-proportional
+
+FEBio 4.13 registers `explicit-solid` (module and solver type; `FEExplicitSolidSolver` in febiomech.dll; parameters
+`mass_lumping`, default 1, and `dyn_damping`, default 1 = none). The developers call it incomplete and not tested with
+every feature (FEBio forum); User Manual 4.5 section 8.4.2: midpoint rule, lumped mass (HRZ lumping not for shells).
+Working syntax:
+
+```xml
+<Module type="explicit-solid"/>
+<Control>
+  <analysis>DYNAMIC</analysis>
+  <time_steps>100000</time_steps>
+  <step_size>1e-05</step_size>            <!-- fixed: below min edge / wave speed, and 2 sqrt(m/k) of springs -->
+  <plot_level>PLOT_MAJOR_ITRS</plot_level>
+  <plot_stride>5000</plot_stride>
+  <solver type="explicit-solid">
+    <mass_lumping>1</mass_lumping>
+    <dyn_damping>0.999</dyn_damping>     <!-- 1 = undamped -->
+  </solver>
+</Control>
+```
+
+Mini tests (Yeoh solids, shells with a pressure, shell-to-solid and solid-to-solid sliding-elastic contact, nonlinear
+springs, a linear-constraint tie, a mass-only linear truss, a fixed rigid body) all ran and matched the implicit solution
+within ~0.15-0.5 mm, **provided `dyn_damping` < 1**: undamped, contact jitter at a surface edge grew until the run blew up
+(a smaller step made it blow up sooner). The damping acts on every mass: with a heavy truss (density 0.0011, 11 kg on one
+node) at 0.999 the node lagged (0.35 vs 4.8 mm), at 0.9999 the attached part overshot, at 0.99999 it blew up. Abaqus'
+`*Bulk Viscosity` damps element vibration only, so heavy mass-scaled parts from an Abaqus/Explicit source are the hard case.
+The log prints every step whatever `output_level` is (tens of MB per 1e5 steps). The linear-constraint tie is not held
+exactly in explicit (0.04 mm in the test). Estimate the step first: min edge / sqrt((k + 4/3 mu) / rho) per domain and
+2 sqrt(m / k_max) per spring; a 0.1 mm element in soft tissue already means ~3e-6 s.
+
+### 29. Fibre mixtures and per-element material data: the syntax that works, and a fibre that crashes silently
+
+Checked on a 2x2x2 hex cube (FEBio 4.13), before any use on a real model:
+
+```xml
+<material id="1" name="wall" type="uncoupled solid mixture">
+  <density>1.06e-09</density>                 <!-- the mixture's own density sets the mass -->
+  <k>1</k>                                    <!-- bulk modulus at the mixture level -->
+  <solid type="Yeoh"><c1>0.00596</c1><c2>0.0188</c2></solid>
+  <solid type="fiber-pow-linear-uncoupled">
+    <fiber type="vector">1,0,0</fiber>        <!-- required, see below -->
+    <E>0.0358</E><beta>2</beta><lam0>1.01</lam0>
+  </solid>
+</material>
+```
+
+- With `beta` 2 and `lam0` 1.01 the fibre adds about `E` to the small-strain modulus along its direction and nothing across
+  it (tension only: it switches off below stretch 1). Pulled across the fibre the cube matched the plain Yeoh exactly.
+- **Mass:** in a dynamic run the mixture's top-level `density` is used; the constituents' densities (default 1) are
+  ignored. A mixture with top density 1e-12 and constituents at 1e-3 moved 9x further in 0.01 s than one with 1e-3 on top.
+- **Per-element directions:** `<MeshData><ElementData type="mat_axis" elem_set="DOMAIN"><elem lid="1"><a>ax,ay,az</a>
+  <d>dx,dy,dz</d></elem>...` (`lid` counts the elements of the set in file order; the domain's `<Elements name>` works as
+  the set). The fibre's `<fiber type="vector">1,0,0</fiber>` is then read in each element's axes (along `a`).
+  **Leaving out the fibre's `<fiber>` (expecting it to default to `a`) made FEBio stop at the first step with no error
+  line**; the log just ends after "beginning time step 1".
+- **A per-element material parameter:** `<c1 type="map">c1map</c1>` in the material and `<ElementData name="c1map"
+  elem_set="DOMAIN"><elem lid="1">0.0119</elem>...` in `<MeshData>` (after `<MeshDomains>`). A uniform map reproduced the
+  uniform value exactly; a map is how a band of stiffer elements goes into one domain without splitting it.
+- In the reference model neither fibre direction helped a contact-only seam stall (convergence-debugging.md): tension-only
+  fibres add an on / off switch per integration point, and along the long axis they stalled earlier than without them.

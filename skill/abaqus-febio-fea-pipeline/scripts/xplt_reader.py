@@ -14,6 +14,11 @@ Things that are easy to get wrong (all verified against FEBio 4.13 output):
     order, followed by one region per <discrete> binding. Shell domain names are
     often missing from the file, so take names from the .feb (feb_postmortem.py
     does this).
+  * Surface data (`contact pressure`, `contact gap`) comes back as
+    {surface_id: array}; `x.surfaces` (read from the mesh's surface section)
+    gives each surface's id, name (e.g. "<pair>_primary" / "<pair>_secondary",
+    "SlidingElastic1Primary") and faces, so a value can be tied to its facet.
+    With FMT_ITEM there is one value per facet.
   * State status flags: FEBioStudio "debug" runs mark converged states 0 and
     iteration states 2. A plain `febio4 -i` run with PLOT_MINOR_ITRS marks
     *every* state 2, so use `converged_state_indices(x, log_path)`, which
@@ -60,6 +65,15 @@ PLT_DOM_ELEMS = 0x01032104
 PLT_DOM_NAME = 0x01032105
 PLT_DOM_ELEM_LIST = 0x01042200
 PLT_ELEMENT = 0x01042201
+PLT_SURFACE_SECTION = 0x01043000
+PLT_SURFACE = 0x01043100
+PLT_SURFACE_HDR = 0x01043101
+PLT_SURFACE_ID = 0x01043102
+PLT_SURFACE_FACES = 0x01043103
+PLT_SURFACE_NAME = 0x01043104
+PLT_SURFACE_MAX_FACET_NODES = 0x01043105
+PLT_FACE_LIST = 0x01043200
+PLT_FACE = 0x01043201
 PLT_STATE = 0x02000000
 PLT_STATE_HEADER = 0x02010000
 PLT_STATE_HDR_TIME = 0x02010002
@@ -105,6 +119,7 @@ class Xplt:
         self.version = 0
         self.dict = {'global': [], 'nodal': [], 'domain': [], 'surface': []}
         self.domains = []     # dicts: etype, ne, eids (array), conn (0-based node indices), name?
+        self.surfaces = []    # dicts: id, name, nf, faces [(face id, [0-based node indices])]
         self.states = []      # (time, status, data_offset, data_size)
         self._read_root()
         self._index_states()
@@ -193,6 +208,26 @@ class Xplt:
                             dom['eids'] = np.array(ids)
                             dom['conn'] = np.array(conns)
                     self.domains.append(dom)
+            elif cid == PLT_SURFACE_SECTION:
+                for c2, o2, s2 in chunks(buf, o, o + s):
+                    if c2 != PLT_SURFACE:
+                        continue
+                    srf = {'faces': []}
+                    for c3, o3, s3 in chunks(buf, o2, o2 + s2):
+                        if c3 == PLT_SURFACE_HDR:
+                            for c4, o4, s4 in chunks(buf, o3, o3 + s3):
+                                if c4 == PLT_SURFACE_ID:
+                                    srf['id'] = struct.unpack_from('<I', buf, o4)[0]
+                                elif c4 == PLT_SURFACE_FACES:
+                                    srf['nf'] = struct.unpack_from('<I', buf, o4)[0]
+                                elif c4 == PLT_SURFACE_NAME:
+                                    srf['name'] = _name(buf[o4:o4 + s4])
+                        elif c3 == PLT_FACE_LIST:
+                            for c4, o4, s4 in chunks(buf, o3, o3 + s3):
+                                if c4 == PLT_FACE:     # [face id, node count, 0-based node indices (padded)]
+                                    a = np.frombuffer(buf, dtype=np.int32, count=s4 // 4, offset=o4)
+                                    srf['faces'].append((int(a[0]), [int(v) for v in a[2:2 + int(a[1])]]))
+                    self.surfaces.append(srf)
 
     def _index_states(self):
         f = self.f

@@ -157,7 +157,10 @@ in mind constantly:
    (also I1-only) with `scripts/fit_yeoh.py`, not to a 1-term Ogden. Also
    choose `k` for the working strain range. A `k` from mu0 matches Poisson's
    ratio only at zero strain, and the material loses volume stiffness as it
-   stiffens. Separately, a single shell element pulled only through its nodes
+   stiffens. Check every converted hyperelastic material this way, not only
+   the one that caused trouble: in the reference model the levator was refit
+   but the vaginal walls and perineal body kept Ogden fits 2-4x off the source.
+   Separately, a single shell element pulled only through its nodes
    reads 2-3x too soft because the back face lags. Prescribe
    `sx`/`sy` as well. -> `febio-xml-format.md` gotchas 23-24.
 
@@ -165,7 +168,10 @@ in mind constantly:
    starts at a node of a 1D spring/truss chain, check the sign of the chain's axial force. If the
    source's trusses are heavy (`*Density`) under `*Dynamic, Explicit`, give the FEBio chain that mass
    (mass-only truss elements, written as `line2` + `<BeamDomain type="linear-truss">`) and run DYNAMIC. A dynamic run that reaches t = 1 is still not an
-   equilibrium: check nodal speeds at the end, and settle with held loads plus `mass damping`.
+   equilibrium: check nodal speeds at the end, and settle with held loads plus `mass damping`. Mass
+   damping acts on every mass. On a mass-scaled part (a 33-329 kg truss chain against 70 g of tissue) the
+   settle becomes a slow creep, and a damped run can look clean only because the damping holds it back.
+   Sum the masses first and size C to the slow mode.
    -> `convergence-debugging.md` (diagnostic loop), `febio-xml-format.md` gotcha 24.
    Before that, check which way the chain gives way and whether a source support in that direction
    is missing. Item 12 has the case where it was.
@@ -188,8 +194,23 @@ in mind constantly:
    the connector-end elongations with a run that has the connectors as springs. That check found the fitted
    lofts right for most families, but no loft can follow connectors that shorten: a loft carries
    compression, and a connector table that starts at (0, 0) doesn't. The spring version also converged
-   best, so it is a usable model in its own right.
+   best, so it is a usable model in its own right. Once the converter's extra ground springs were removed,
+   the soft lofts (near-zero and P-arcus) stalled every run at the source loads. With those lofts as their
+   connectors the model reached full load, with the LA unchanged. A loft that carries compression can also
+   go floppy and make only the loft version crawl once a neighbouring support is weakened (the anterior
+   paravaginal lofts); swapping it for its connectors is the test (`convergence-debugging.md`).
    -> `abaqus-inp-format.md` (lofts and tubes, loft material fit, connector audit, in-situ check).
+
+13. **A contact-only seam that an explicit source runs freely can stall FEBio for good.** When two separately
+   meshed parts meet edge to edge and only a frictionless contact joins them, softer (more faithful) materials let
+   the edges slide and open until their nodes flip on and off the other part's last facet; the implicit solver
+   stalls and no contact or solver setting removes it. Every joint that converges (a tie, springs, a tension
+   contact) changes the answer, so judge it on the results and on their trends across load cases, and check how
+   the source solved it first (`*Dynamic, Explicit` has no iterations to stall). FEBio's `explicit-solid` is the
+   like-for-like test. What converged with the seam still free: a thin stiff band of elements along the seam (~10 %
+   of them, the rest soft), whose answer stayed within ~1 mm of the soft parts', or uniformly stiffer parts, whose
+   answer moves with the stiffness. Tension-only fibres did not help.
+   -> `convergence-debugging.md` ("A contact-only seam"), `febio-xml-format.md` gotchas 27-29.
 
 ## Command-line basics
 
@@ -281,7 +302,8 @@ Ready-to-use instead of re-deriving the same awk one-liners each time:
   structural summary of a `.feb` for diffing versions section by section
   (Rule 1 of the geometry reference), with mesh blocks reduced to counts and hashes.
 - **`scripts/xplt_reader.py`, `scripts/feb_model.py`** -- the plot-file reader
-  (safe on multi-GB and still-being-written files) and the `.feb` parser the
+  (safe on multi-GB and still-being-written files; `x.surfaces` names the
+  surfaces behind contact pressure/gap data) and the `.feb` parser the
   other scripts import. They are usable directly for custom checks.
 
 ## Reference files
@@ -305,7 +327,7 @@ Read these as needed -- they're where the deep, hard-won detail lives:
   (anchored at both ends, its own material fitted to the connectors it
   replaces), and auditing connector families by both ends (item 12).
 - **`references/febio-xml-format.md`** -- FEBio's section layout and
-  twenty-five specific XML/semantic gotchas, roughly ordered by how much time
+  twenty-eight specific XML/semantic gotchas, roughly ordered by how much time
   each one cost, including the node-ID-monotonicity rule, where `DiscreteSet`
   vs. `discrete_material` actually live, why a `<Surface>` can't be built from
   bare nodes, how to extract valid type-name keywords straight out of
@@ -334,6 +356,17 @@ Read these as needed -- they're where the deep, hard-won detail lives:
   Gotcha 25 covers FEBio 4.13 beams (`line2` + `<BeamDomain type="linear-beam">`,
   shear locking, the two-pin mechanism). A beam used as a stabiliser on a tied
   spring chain made the reference model fail earlier in every variant tried.
+  Gotcha 26 covers FEBio 4.13's shell formulations, including the mid-surface
+  `elastic-shell-old` (thickness per element in MeshData), and a panel test
+  showing that the thickness treatment moves a soft pressurised shell < 4 %.
+  Gotcha 27 covers weighted linear constraints (a node tied to a point on a
+  facet), `maxaug` 0 turning them into zero-length springs, and why a
+  `tension` sliding contact needs an offset for a rest gap. Gotcha 28 covers
+  FEBio's explicit solver (`explicit-solid`): syntax, the need for
+  `dyn_damping`, and why that damping holds heavy mass-scaled parts back.
+  Gotcha 29 covers fibre mixtures (`uncoupled solid mixture` + a tension-only
+  fibre), per-element directions and mapped material parameters, and a fibre
+  without its `<fiber>` that stops FEBio silently.
 - **`references/geometry-cross-referencing.md`** -- techniques for working
   with huge FE text files without loading them whole: ID->coordinate lookup
   tables, coordinate-based cross-referencing between Abaqus and FEBio,
