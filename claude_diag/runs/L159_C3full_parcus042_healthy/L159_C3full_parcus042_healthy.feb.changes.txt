@@ -1,0 +1,3 @@
+base: claude_diag\runs\L149_seamspr_pm_outer\L149_seamspr_pm_outer.feb
+L159_C3full_parcus042_healthy: L149_seamspr_pm_outer + healthy changes {'parcus': 0.42} + case healthy
+NOT FAITHFUL (the paper fit: healthy connective tissue / walls), parcus: Parcus_conn (26 springs), material Parcus_conn_mat scale 1 -> 0.42

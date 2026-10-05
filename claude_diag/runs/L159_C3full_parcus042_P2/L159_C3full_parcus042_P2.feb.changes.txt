@@ -1,0 +1,15 @@
+base: claude_diag\runs\L149_seamspr_pm_outer\L149_seamspr_pm_outer.feb
+L159_C3full_parcus042_P2: L149_seamspr_pm_outer + healthy changes {'parcus': 0.42} + case P2
+NOT FAITHFUL (the paper fit: healthy connective tissue / walls), parcus: Parcus_conn (26 springs), material Parcus_conn_mat scale 1 -> 0.42
+the paper's case (Luo et al. 2015): levator at 40 % of the healthy Yamada stiffness: the healthy law (PCM-LA_Yamada100%, material LA_Yamada50pct_Yeoh) c1, c2, k x 0.4: {'c1': '0.02347128', 'c2': '0.03283498', 'k': '2'} -> {'c1': '0.009388512', 'c2': '0.01313399', 'k': '0.8'}
+the paper's case (Luo et al. 2015), apical: CL-L_conn_1 (9 springs), material CL-L_conn_1_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: CL-L_conn_2 (9 springs), material CL-L_conn_2_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: CL-L_conn_3 (10 springs), material CL-L_conn_3_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: CL-R_conn_1 (9 springs), material CL-R_conn_1_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: CL-R_conn_2 (9 springs), material CL-R_conn_2_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: CL-R_conn_3 (10 springs), material CL-R_conn_3_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: USL-L_conn_1 (5 springs), material USL-L_conn_1_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: USL-L_conn_2 (8 springs), material USL-L_conn_2_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: USL-R_conn_1 (5 springs), material USL-R_conn_1_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), apical: USL-R_conn_2 (8 springs), material USL-R_conn_2_mat scale 1 -> 0.4
+the paper's case (Luo et al. 2015), posterior support: Parcus_conn (26 springs), material Parcus_conn_mat scale 0.42 -> 0.063
