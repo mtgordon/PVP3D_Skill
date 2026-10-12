@@ -123,6 +123,41 @@ BASES = (
      't = 1, 0 failed, 26 min; Ba / Bp / C -9.3 / -15.5 / -40.2 mm (L127_tube_r30s -9.3 / -15.6 / -40.2); the PM moves '
      'up to 2.8 mm.',
      'L127_tube_r30s'),
+    ('band', 'L199_band75av_0pv_pmd_sph025', '2026-10-07',
+     'The user: "Set the current tube line and band lines as defaults for their line" (the default of the band line): '
+     'L149_seamspr_pm_outer with the canal seam springs removed (contact-only seam, as the source), a 7.5 mm stiff band '
+     'along the seam on the AVW + cervix only (Yeoh c1 x3; 59 % of the AVW, 35 % of the cervix; the PVW faithful, no '
+     'band), wall + PM shell mass damping C 200, LA_sphincter_side_conn x0.25 (all NOT IN SOURCE). Fitted healthy '
+     'supports (NOT FAITHFUL, build_batch145): apical (CL / USL) x6.5, posterior (Parcus) x0.35. Healthy -4.7 / -16.7 / '
+     '-42.4, P1 -0.8 / +3.1 / -38.4, P2 +7.5 / +10.2 / -31.5 (L201_b75a0p_ap65parcus035_*): meets healthy and P1 and the '
+     'P2 Bp; the P2 Ba stays below the hymen. README_2026-10-06.md.',
+     'L149_seamspr_pm_outer'),
+    ('tube', 'L202_curvepress_apexclosed_P1', '2026-10-07',
+     'The user: "Set the current tube line ... as defaults" (the default of the tube line; a P1 file): '
+     'L169_wrapfull_endspr_selfall_walls035 (the tube, walls x0.35 + wall damping C 200, curve ends sprung to the PM '
+     'outer arc, whole-boundary curve self-contact) + every PM-arch spring at PM_conn_mat (the rule of the user, L187) + '
+     '0.014 MPa on the outer faces of the curves (L189 / L190) + curve damping C 1000 (L191) + the apex CLOSED: each curve '
+     'extruded onto the cervix / PVW (tools/apex_close.py, L202; without it the curves inverted from the apex and blew up '
+     'at t 0.795). P1 -6.5 / -10.5 / -39.1, fold 3 / 5 / 17 nodes at t 0.8 / 0.9 / 1. All NOT IN SOURCE.',
+     'L169_wrapfull_endspr_selfall_walls035_P1'),
+    ('tube', 'L258_tubecand_P1', '2026-10-10',
+     'The user: "adopt your version as the tube main" (the range-of-motion goal; a P1 file, cases by build_batch244): '
+     'L202 + the remeshed PM + cervix x3 + the new apex cap (apex_contour.py) + the curves\' cervix band and cap at '
+     'Vagina_Cervix + CL / USL / Para / Parcus ends on the curves (build_batch242) + supports at the source + curves x0.6 '
+     '(Curve_soft) + sphincter side x0.25 + NO pressure on the curves. Healthy -14.0 / -17.5 / -43.2; MAX +18.4 / +17.2 / '
+     '-22.1 (apex motion 36 mm). All NOT IN SOURCE / NOT FAITHFUL.',
+     'L202_curvepress_apexclosed_P1'),
+    ('ledge', 'L228_ext5sl01_pmc_pmd_sph025', '2026-10-09',
+     'The ledge line (called the lips line until later on 2026-10-09). The user: "make CL x35 Parcus x0.59 the default for '
+     'the lips line". Base: L199_band75av_0pv_pmd_sph025 WITHOUT the '
+     'band (L204_noband), the walls extended 5 mm past the contact-only seam as unloaded lips at c1, c2, k x0.1 of the wall '
+     '(tools/seam_extend.py + build_batch208; neutral within 0.6 mm), the PM shell remeshed across its width '
+     '(tools/pm_coarsen.py, rows 0 / 5 / 10: 2.6x faster, answer within 0.5 mm); all NOT IN SOURCE. Healthy supports '
+     '(NOT FAITHFUL, build_batch145 cl= / parcus=): CL x35, Parcus x0.59; USL, paravaginal and the rest at the source. '
+     'Healthy -3.5 / -16.4 / -41.9, P1 -0.5 / +4.9 / -39.4, P2 +3.3 / +8.2 / -36.5 (L230_pmc_cl35parcus059_src_*): meets '
+     'healthy, P1 and the P2 Bp (both Bp within ~0.2 mm of their edges); the P2 Ba stays below the hymen. '
+     'README_2026-10-08.md sections 7-11.',
+     'L199_band75av_0pv_pmd_sph025'),
 )
 BASE_OF = {b[1]: b for b in BASES}
 LOADS =('Load-AVW', 'Load-PVW', 'Load-PeB-top', 'Load-top', 'Load-LA')
@@ -1071,7 +1106,7 @@ LEGEND = [
      'claude_diag/run_log_notes.csv; everything else is read from the run\'s own files: <run>.feb (the model), '
      '<run>.feb.changes.txt (what was changed and the base), <run>.log (status, t reached, failed attempts, wall time), '
      '<run>.xplt (the measurements) and runs/_autostop.txt (start time, threads, stops). Runs live in '
-     '<project>/claude_diag/runs/<run>/.'),
+     'claude_diag/runs/<run>/.'),
     ('Why / result text', '"written ..." = written when the run was discussed; "drafted 2026-09-26 from ..." = drafted '
      'afterwards from the notes named (the READMEs, SESSION_SUMMARY.md, the build script, the change log). Drafted '
      'text may miss what was said in conversation; the numbers in the other columns are read from the files.'),

@@ -1,11 +1,11 @@
 """Contact pressure / gap per plotted contact surface at a few converged states: which pairs are touching, and how
 many facets. usage: py -3.10 contact_state.py RUN"""
 import sys, os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, r'F:\Developing PVP3D Model for FEBio\claude_diag\tools')
 import numpy as np
 from xplt import Xplt
 run = sys.argv[1]
-x = Xplt(os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'runs'), run, run + '.xplt'))
+x = Xplt(os.path.join(r'F:\Developing PVP3D Model for FEBio\claude_diag\runs', run, run + '.xplt'))
 print('surface vars:', [it.get('name') for it in x.dict.get('surface', [])])
 print('surfaces:', [s.get('name') if isinstance(s, dict) else s for s in getattr(x, 'surfaces', [])][:12])
 conv = [i for i, s in enumerate(x.states) if s[1] == 0]

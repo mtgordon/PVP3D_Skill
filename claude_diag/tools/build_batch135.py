@@ -49,6 +49,10 @@ NAME = 'L135_tube_thin275_narrow6'
 NSEG = 6
 EXTEND_DISTAL = False   # batch 142: carry the curves to the last seam station at the perineal-body end
 EXTENDED = {}
+REFINE_DISTAL = None    # batch 171: (gaps, sub): split each of the last `gaps` station gaps at the distal end into `sub`
+                        # (intermediate rings interpolated between the two stations; their end nodes follow the two
+                        # stations' end nodes by linear constraints, as the curves' other end nodes follow the columns)
+REFINE_COMPOSE = False  # batch 173: the intermediate rings' end nodes follow the column nodes directly (no chained constraints)
 LABEL = 'NOT IN SOURCE (2.75 mm walls narrowed 6 mm, curved edges)'
 
 
@@ -208,19 +212,50 @@ def wrap2(model, orig):
             rings.append(ring_ids)
         nh = 0
         P = lambda ids: np.array([X[i] if i in X else new_nodes[i - nid0] for i in ids])
+        refine, sub = set(), 1
+        if REFINE_DISTAL:
+            gaps, sub = REFINE_DISTAL
+            ng = len(rings) - 1
+            distal_last = X[S[merged[-1]]][2] < X[S[merged[0]]][2]          # the perineal-body end has the lower z
+            refine = set(range(ng - gaps, ng)) if distal_last else set(range(gaps))
         for i in range(len(rings) - 1):
             if rings[i] is None or rings[i + 1] is None:
                 continue
             R0, R1 = rings[i], rings[i + 1]
-            for j in range(NSEG):
-                for k in range(len(R0) - 1):
-                    hx = [R0[k][j], R0[k][j + 1], R0[k + 1][j + 1], R0[k + 1][j],
-                          R1[k][j], R1[k][j + 1], R1[k + 1][j + 1], R1[k + 1][j]]
-                    if hex_jac_ok(P(hx)) < 0:
-                        hx = hx[4:] + hx[:4]
-                    hexes.append(hx)
-                    hexj.append(j)
-                    nh += 1
+            seq = [R0]
+            if i in refine:
+                assert len(R0) == len(R1)
+                given = {n: w for n, w in cons} if REFINE_COMPOSE else {}
+                for q in range(1, sub):
+                    s = q / sub
+                    Rm = []
+                    for k in range(len(R0)):
+                        row = []
+                        for j in range(NSEG + 1):
+                            a, b = R0[k][j], R1[k][j]
+                            n_ = add((1 - s) * P([a])[0] + s * P([b])[0])
+                            if j in (0, NSEG):
+                                # REFINE_COMPOSE: a station end node that itself follows the columns is replaced by the
+                                # column nodes it follows, so no constraint refers to a constrained node
+                                wts = {}
+                                for nd, wt in ((a, 1 - s), (b, s)):
+                                    for q, wq in (given[nd] if nd in given else [(nd, 1.0)]):
+                                        wts[q] = wts.get(q, 0.0) + wt * wq
+                                cons.append((n_, list(wts.items())))
+                            row.append(n_)
+                        Rm.append(row)
+                    seq.append(Rm)
+            seq.append(R1)
+            for A_, B_ in zip(seq, seq[1:]):
+                for j in range(NSEG):
+                    for k in range(len(A_) - 1):
+                        hx = [A_[k][j], A_[k][j + 1], A_[k + 1][j + 1], A_[k + 1][j],
+                              B_[k][j], B_[k][j + 1], B_[k + 1][j + 1], B_[k + 1][j]]
+                        if hex_jac_ok(P(hx)) < 0:
+                            hx = hx[4:] + hx[:4]
+                        hexes.append(hx)
+                        hexj.append(j)
+                        nh += 1
         report[sgn] = (sum(r is not None for r in rings), len(rings), nh)
     ids = model.add_nodes('canal_wrap_nodes', new_nodes)
     assert ids[0] == nid0

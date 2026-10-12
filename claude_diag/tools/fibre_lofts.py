@@ -17,7 +17,7 @@ from collections import OrderedDict
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'skill', 'abaqus-febio-fea-pipeline', 'scripts'))
+sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
 from paths import RUNS_DIR  # noqa: E402
 from loft_survey import survey, tri_area  # noqa: E402
 from loft_fit_all import strip_widths, table_force  # noqa: E402

@@ -1,0 +1,2 @@
+base: claude_diag/runs/L209_ext5sl01_pmd_sph025/L209_ext5sl01_pmd_sph025.feb
+NOT IN SOURCE (PM shell remeshed across its width; tools/pm_coarsen.py): rows [0, 5, 10] of the 11 x 36 PM grid kept (outline, plane and the clamped row unchanged), 70 quads replace 350 (width per row from 0.36-0.68 to 1.8-3.4 mm under the 2 mm shell), 288 nodes removed; PM_contact rebuilt (70 faces); 54 PM_anchor_ties rows re-expressed on the coarse quads (tied point moved <= 0.006 mm)

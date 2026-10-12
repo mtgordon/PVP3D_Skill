@@ -43,7 +43,7 @@ def measure(runs, cache):
         out = subprocess.run([sys.executable, os.path.join(TOOLS, 'summary_table.py')] + [r for r, _ in todo],
                              capture_output=True, text=True).stdout
         for r, mt in todo:
-            m = re.search(r'^\| `%s` \| ([^|]+)\| ([^|]+)\|[^|]+\| ([^|]+)\|.*\| ([^|]+)\| ([^|]+)\| ([^|]+)\|\s*$' % re.escape(r),
+            m = re.search(r'^\| `%s` \| ([^|]+)\| ([^|]+)\|[^|]+\| ([^|]+)\|.*\| ([^|]+)\| ([^|]+)\| ([^|]+)\|[^|]+\|[^|]+\|\s*$' % re.escape(r),
                           out, re.M)
             if m:
                 t, fl, wall, ba, bp, c = (g.strip() for g in m.groups())

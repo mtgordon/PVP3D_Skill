@@ -2,8 +2,10 @@
 tissue and vaginal walls of the new base L144_seamspr_pm_allcontact). Builds, for one set of healthy changes, the healthy
 model and the paper's cases P1 / P2 on it (build_batch107 P1 / P2: they MULTIPLY the healthy <scale>s, so the impairments
 scale from the new healthy values; the walls get the same scale in all three).
-Healthy changes (each NOT FAITHFUL; bounds x0.2 to x5):
+Healthy changes (each NOT FAITHFUL; bounds x0.2 to x5; apical may exceed x5 from 2026-10-06, the user):
   apical=S   every CL / USL spring set's <scale> x S (CL-L/R_conn_1-3, USL-L/R_conn_1-2)
+  cl=S, usl=S   the CL sets only / the USL sets only (2026-10-08)
+  cervix=S   Vagina_Cervix only, Yeoh c1, c2, k x S (whole tissue; the user, 2026-10-09: x3 to ~x10)
   para=S     AVW-Para-L / R_conn x S                 parcus=S   Parcus_conn x S
   pmconn=S   PM_conn + PM-LA-x%stiff_mat x S          sph=S      LA_sphincter_side_conn + LA_sphincter_post_conn x S
   avw=S      Vagina_AVW + Vagina_Cervix Yeoh c1, c2, k x S
@@ -25,9 +27,11 @@ from build_batch107 import P1, P2  # noqa: E402
 RUNS = os.path.join(JOBS, 'claude_diag', 'runs')
 BASE = 'L144_seamspr_pm_allcontact'
 LABEL = 'NOT FAITHFUL (the paper fit: healthy connective tissue / walls)'
-FAMILIES = {'apical': CLUSL, 'para': ('AVW-Para-L_conn', 'AVW-Para-R_conn'), 'parcus': ('Parcus_conn',),
+FAMILIES = {'apical': CLUSL, 'cl': tuple(s for s in CLUSL if s.startswith('CL')),     # cl / usl: 2026-10-08, apical split
+            'usl': tuple(s for s in CLUSL if s.startswith('USL')),
+            'para': ('AVW-Para-L_conn', 'AVW-Para-R_conn'), 'parcus': ('Parcus_conn',),
             'pmconn': ('PM_conn', 'PM-LA-x%stiff_mat'), 'sph': ('LA_sphincter_side_conn', 'LA_sphincter_post_conn')}
-WALLS = {'avw': ('Vagina_AVW', 'Vagina_Cervix'), 'pvw': ('Vagina_PVW',),
+WALLS = {'avw': ('Vagina_AVW', 'Vagina_Cervix'), 'pvw': ('Vagina_PVW',), 'cervix': ('Vagina_Cervix',),
          'walls': ('Vagina_AVW', 'Vagina_Cervix', 'Vagina_PVW')}   # the user, 2026-10-02: keep the walls the same (one scale)
 CASES = {'healthy': None, 'P1': P1, 'P2': P2}
 
@@ -41,9 +45,16 @@ def wall_scale(m, mats, s):
         m.log.append(f'{LABEL}: wall {nm} Yeoh c1, c2, k x {s:g}: {old} -> {({k: mat.find(k).text for k in old})}')
 
 
+OVER5 = {'apical', 'cl', 'usl'}   # the user, 2026-10-06 morning: "I'll let you go above 5x now if needed" (apical, to hold Ba)
+
+
 def healthy(m, scales):
     for key, s in scales.items():
-        assert 0.2 - 1e-9 <= s <= 5 + 1e-9, f'{key}={s} outside x0.2-x5'
+        hi = float('inf') if key in OVER5 else 5
+        lo = 0.2
+        if key == 'cervix':   # the user, 2026-10-09: the cervix may start at 3x the wall and go up to ~10x
+            lo, hi = 3, 10
+        assert lo - 1e-9 <= s <= hi + 1e-9, f'{key}={s} outside x{lo:g}-x{hi:g}'
         if key in FAMILIES:
             for st in FAMILIES[key]:
                 spring_scale(m, st, s, LABEL + f', {key}')

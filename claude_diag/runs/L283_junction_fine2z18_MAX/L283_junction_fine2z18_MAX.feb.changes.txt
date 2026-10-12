@@ -1,0 +1,2 @@
+base: claude_diag/runs/L278_junction_MAX/L278_junction_MAX.feb (tools/build_batch280.py)
+NOT IN SOURCE (mesh refinement): every whole curve ring (AVW + PVW halves) reaching above depth 18.0 mm (480 hexes) split into 2 rings each along the canal -> 960 hexes (480 new, domain canal_wrap_hex_pvw_fine, Curve_soft); 700 new nodes, {'AVW': 100, 'PVW': 100} of them tied onto the wall face they lie on (moved <= 0.027 mm); 824 surface facets split; smallest sub-tet 0.069 mm3

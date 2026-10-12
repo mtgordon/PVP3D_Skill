@@ -1,12 +1,12 @@
 """Deformed distance between the PVW_LA contact surfaces (the contact removed in the run): how close does the LA get to the
 posterior vaginal wall? Also which surface is which."""
 import sys, os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, r'F:\Developing PVP3D Model for FEBio\claude_diag\tools')
 import numpy as np
 from febmodel import Feb, pt_tri_dist
 from xplt import Xplt
 run = sys.argv[1]
-R = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'runs')
+R = r'F:\Developing PVP3D Model for FEBio\claude_diag\runs'
 f = Feb(os.path.join(R, run, run + '.feb'))
 x = Xplt(os.path.join(R, run, run + '.xplt'))
 idx = {int(n): i for i, n in enumerate(x.node_ids)}

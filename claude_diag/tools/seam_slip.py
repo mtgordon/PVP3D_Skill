@@ -16,7 +16,7 @@ import numpy as np
 from variants7 import Model7, JOBS
 from build_batch90 import seam_nodes
 sys.path.insert(0, os.path.join(JOBS, 'claude_diag', 'seam_tie'))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'skill', 'abaqus-febio-fea-pipeline', 'scripts'))
+sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
 from seam_mini import project  # noqa: E402
 from xplt_reader import Xplt, converged_state_indices  # noqa: E402
 

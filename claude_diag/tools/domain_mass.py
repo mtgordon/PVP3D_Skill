@@ -1,6 +1,6 @@
 # usage: py -3.10 domain_mass.py MODEL.feb   (mass per domain: density x volume, grams; mass-only BeamDomains show 0 here)
 import sys, os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, r'F:\Developing PVP3D Model for FEBio\claude_diag\tools')
 import numpy as np
 import xml.etree.ElementTree as ET
 from febmodel import Feb

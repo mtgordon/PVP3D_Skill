@@ -1,0 +1,2 @@
+base: claude_diag/runs/L242_apexcontour_cx3_curvecx_attach_P1 -> build_batch249 curvesoft0.6 (L258_tmp)
+tube candidate (2026-10-09 night, unattended; for the range-of-motion goal): L242_apexcontour_cx3_curvecx_attach_P1 + curves x0.6 (Curve_soft, DIAGNOSTIC-derived, NOT IN SOURCE) + sphincter side x0.25 (the standing rule, missing on the tube line) + no pressure on the curves (NOT IN SOURCE change of the tube load)

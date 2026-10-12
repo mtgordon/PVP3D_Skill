@@ -5,6 +5,8 @@ the hymen is the fixed reference: negative = above (proximal to) it, positive = 
   Ba / Bp  the most distal (most dependent) position of ANY part of the upper anterior / posterior wall, from the fornix
            down to Aa / Ap; -3 cm without prolapse
   C        the most distal edge of the cervix
+  Ba' / Bp' (the user, 2026-10-06; NOT Bump's) the most dependent point of the WHOLE AVW / PVW lumen surface, the distal
+           edge at the hymen included (rest value up to -0.2 mm: ~0 without prolapse, not -30)
 The walls are the canal's lumen surfaces (AVW: SlidingElastic1 secondary, AVW nodes; PVW: SlidingElastic1 primary, PVW
 nodes); "upper" = the nodes whose rest value is at or proximal to Aa's / Ap's. Plane and signs as tools/pop_q.py (the
 source's hymenal reference PM_Plane). tools/pop_q.py's "Ba / Bp" are the tracked points, i.e. Aa / Ap here; Luo et al. 2015
@@ -18,7 +20,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'skill', 'abaqus-febio-fea-pipeline', 'scripts'))
+sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
 from xplt_reader import Xplt, converged_state_indices  # noqa: E402
 
 RUNS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'runs')
@@ -39,15 +41,15 @@ _, XR = nodes_of(ref)
 P = np.array([XR[i] for i in range(23817, 24213)])
 c0 = P.mean(axis=0)
 nrm = np.linalg.svd(P - c0)[2][-1]
-print('| run | t | Aa | Ba | Ap | Bp | C [mm] | Ba / Bp leading node (rest value, x) |')
-print('|---|---|---|---|---|---|---|---|')
+print("| run | t | Aa | Ba | Ap | Bp | C [mm] | Ba' | Bp' | Ba / Bp leading node (rest value, x) | Ba' / Bp' node (rest value, x) |")
+print('|---|---|---|---|---|---|---|---|---|---|---|')
 for run in args:
     mesh, X = nodes_of(ET.parse(os.path.join(RUNS, run, run + '.feb')).getroot())
     dom = {}
     for e in mesh.findall('Elements'):
         for el in e:
             for v in el.text.split(','):
-                dom.setdefault(int(v), set()).add(e.get('name'))
+                dom.setdefault(int(v), set()).add(e.get('name').replace('_dist', ''))   # 2026-10-06: a local zone domain <name>_dist counts as <name>
     surf = {s.get('name'): {int(v) for f in s for v in f.text.split(',')} for s in mesh.findall('Surface')}
     avw = sorted(n for n in surf['SlidingElastic1Secondary'] if '_PickedSet347' in dom.get(n, ()))
     pvw = sorted(n for n in surf['SlidingElastic1Primary'] if '_PickedSet64' in dom.get(n, ()))
@@ -67,6 +69,10 @@ for run in args:
     pos = lambda v: X[v] + u[idx[v]]
     ba = max(upper_a, key=lambda v: val(pos(v)))
     bp = max(upper_p, key=lambda v: val(pos(v)))
+    ba2 = max(avw, key=lambda v: val(pos(v)))
+    bp2 = max(pvw, key=lambda v: val(pos(v)))
+    lead2 = f'{ba2} ({val(X[ba2]):+.0f}, x {X[ba2][0]:+.0f}) / {bp2} ({val(X[bp2]):+.0f}, x {X[bp2][0]:+.0f})'
     lead = f'{ba} ({val(X[ba]):+.0f}, x {X[ba][0]:+.0f}) / {bp} ({val(X[bp]):+.0f}, x {X[bp][0]:+.0f})'
     print(f'| `{run}` | {x.states[k][0]:.3f} | {val(pos(aa)):+.1f} | {val(pos(ba)):+.1f} | {val(pos(ap)):+.1f} | '
-          f'{val(pos(bp)):+.1f} | {max(val(pos(v)) for v in cx):+.1f} | {lead} |')
+          f'{val(pos(bp)):+.1f} | {max(val(pos(v)) for v in cx):+.1f} | '
+          f'{val(pos(ba2)):+.1f} | {val(pos(bp2)):+.1f} | {lead} | {lead2} |')

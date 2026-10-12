@@ -1,7 +1,8 @@
 """One markdown row per run for the 2026-09-27 reports: t reached, failed attempts, iterations, wall time (log; a run that
 did not end prints its last converged time and "running/stopped"), the LA's ballooning (la_stretch.py's measures: total
 area ratio, element area stretch median / p90, edge stretch median) and the POP-Q points Ba / Bp / C as Bump et al. 1996
-define them (pop_q_bump.py; before 2026-09-28 Ba / Bp were the tracked 3 cm points, i.e. Aa / Ap, equal to them in every
+define them, plus Ba' / Bp' (the most dependent point of the WHOLE AVW / PVW lumen surface, edge included; the
+user's measure from 2026-10-06, not Bump's: ~0 without prolapse) (pop_q_bump.py; before 2026-09-28 Ba / Bp were the tracked 3 cm points, i.e. Aa / Ap, equal to them in every
 run checked) (signed distance to the hymenal plane PM_Plane, + below the hymen), all at the last converged state, or at --t.
 usage: py -3.10 summary_table.py RUN [RUN ...] [--t 1.0]"""
 import os
@@ -11,7 +12,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'skill', 'abaqus-febio-fea-pipeline', 'scripts'))
+sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
 from xplt_reader import Xplt  # noqa: E402
 
 RUNS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'runs')
@@ -38,8 +39,8 @@ P = np.array([XR[i] for i in range(23817, 24213)])
 c0 = P.mean(axis=0)
 nrm = np.linalg.svd(P - c0)[2][-1]
 
-print('| run | t | failed | iterations | wall | LA area | element stretch median / p90 | edge stretch | Ba [mm] | Bp [mm] | C [mm] |')
-print('|---|---|---|---|---|---|---|---|---|---|---|')
+print("| run | t | failed | iterations | wall | LA area | element stretch median / p90 | edge stretch | Ba [mm] | Bp [mm] | C [mm] | Ba' [mm] | Bp' [mm] |")
+print('|---|---|---|---|---|---|---|---|---|---|---|---|---|')
 for run in args:
     txt = open(os.path.join(RUNS, run, run + '.log'), encoding='latin-1').read()
     g = lambda pat: (re.findall(pat, txt) or [''])[-1]
@@ -69,7 +70,7 @@ for run in args:
     for e in mesh.findall('Elements'):
         for el in e:
             for v in el.text.split(','):
-                dom.setdefault(int(v), set()).add(e.get('name'))
+                dom.setdefault(int(v), set()).add(e.get('name').replace('_dist', ''))   # 2026-10-06: a local zone domain <name>_dist counts as <name>
     surf = {s.get('name'): {int(v) for f in s for v in f.text.split(',')} for s in mesh.findall('Surface')}
     avw = [n for n in surf['SlidingElastic1Secondary'] if '_PickedSet347' in dom.get(n, ())]
     pvw = [n for n in surf['SlidingElastic1Primary'] if '_PickedSet64' in dom.get(n, ())]
@@ -85,7 +86,11 @@ for run in args:
     ba = max((v for v in avw if val(X[v]) <= val(X[aa]) + 1e-9), key=lambda v: val(pos(v)))
     bp = max((v for v in pvw if val(X[v]) <= val(X[ap]) + 1e-9), key=lambda v: val(pos(v)))
     C = max(val(pos(v)) for v in cx)
+    # Ba' / Bp' (the user, 2026-10-06; NOT Bump's): the most dependent point of the WHOLE AVW / PVW lumen surface, distal
+    # edge at the hymen included (rest value up to -0.2 mm, so ~0 without prolapse, not -30)
+    ba2 = max(val(pos(v)) for v in avw)
+    bp2 = max(val(pos(v)) for v in pvw)
     state = f'{T[k]:.3f}' + ('' if end else ' (not ended)')
     print(f'| `{run}` | {state} | {fails} | {its} | {wall or "-"} | x{(r * A0).sum() / A0.sum():.2f} | '
           f'{np.median(r):.2f} / {np.percentile(r, 90):.2f} | {np.median(st):.2f} | {val(pos(ba)):+.1f} | {val(pos(bp)):+.1f} | '
-          f'{C:+.1f} |')
+          f'{C:+.1f} | {ba2:+.1f} | {bp2:+.1f} |')

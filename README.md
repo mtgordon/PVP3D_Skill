@@ -1,8 +1,8 @@
 # PVP3D: Abaqus-to-FEBio skill and model-building tools
 
 Material from converting the PVP3D pelvic-floor model (levator ani, vaginal wall, perineal body, and their supports) from
-Abaqus to FEBio, and from getting the FEBio version to converge, including the current FEBio base model and its fit to
-the paper's prolapse cases. Updated 2026-10-05.
+Abaqus to FEBio, and from getting the FEBio version to converge, including the current FEBio models, their range of motion
+against the paper's prolapse cases, and the rebuilt tube junction. Updated 2026-10-12.
 
 ## Contents
 
@@ -10,14 +10,52 @@ the paper's prolapse cases. Updated 2026-10-05.
 |---|---|
 | `skill/abaqus-febio-fea-pipeline/` | A Claude Code skill: comparing and converting Abaqus (`.inp`) and FEBio (`.feb`) models, tracing a converted model back to its Abaqus source, and debugging FEBio convergence. `SKILL.md` is the entry point; `references/` holds the detail and `scripts/` the helper tools. |
 | `PVP3DModel_job.inp` | The original Abaqus model: `*Dynamic, Explicit` over 1 s, pressures ramped with a smooth step, 291 `CONN3D2` connectors for the ligaments and attachments. |
-| `claude_diag/tools/` | Python tools that build the FEBio model variants from a base `.feb` (`variants*.py`, `build_batch*.py`; the current base comes from `build_batch149.py`, the paper fit from `build_batch145.py`), fit materials (`loft_fit_all.py`, `cl_usl_section.py`), run batches (`queue_runs.sh`, `wait_any_end.sh`, `stop_runs.sh`) and read results (`summary_table.py`, `pop_q_bump.py`: POP-Q points as Bump et al. 1996 define them; `fit_table.py`). |
-| `claude_diag/runs/L149_seamspr_pm_outer/` | **The current base model** (2026-10-02), its log and change list. See below. |
-| `claude_diag/runs/L149_seamspr_pm_outer_fast/` | The same model without the two wall contacts `walls_LA` / `walls_PM`: a faster copy for screening (answers within 0.2-1.6 mm of the full base). |
-| `claude_diag/runs/L159_C3full_parcus042_*/` | The best fit so far to the paper's cases (healthy, P1, P2) on the full base. See below. |
-| `claude_diag/README_2026-10-02.md` | Notes on the base and the fit (sections 1-7): what was changed, what converged, and what was learned. |
-| `claude_diag/runs/L12_stabdamp_p3/`, `claude_diag/README_2026-09-24b.md` | The earlier model of 2026-09-24 (lofts, pressures at 1/3, mass damping) and its notes; superseded, kept for history. |
+| `claude_diag/tools/` | Python tools that build the FEBio model variants from a base `.feb` (`variants*.py`, `build_batch*.py`), run batches (`queue_threads.sh`, `wait_any_end.sh`, `autostop_runs.sh`, `stop_runs.sh`) and read results (`rom_report.py`: range of motion; `pop_q_bump.py`: POP-Q points as Bump et al. 1996 define them; `curve_swell.py`: element swelling / folding; `junction_slices.py`: depth-slice pictures of the tube junction). |
+| `claude_diag/runs/L258_tubecand_*/` | **The tube line's main model** (2026-10-10): the vaginal canal as a closed tube (walls joined by curved side bands). See below. |
+| `claude_diag/runs/L283_junction_fine2z18_*/` | **The tube with the rebuilt junction** (2026-10-12; candidate, not yet adopted). See below. |
+| `claude_diag/runs/L228_ext5sl01_pmc_pmd_sph025/`, `claude_diag/runs/L271_ledge_cx3_chains_sheet30_*/` | **The ledge line**: its base, and the version without compressive springs that meets the range-of-motion limits. See below. |
+| `claude_diag/README_2026-10-09.md` | Notes for 2026-10-09 to 10-12 (range-of-motion goal, both lines, the junction rebuild: sections 3-7). `README_2026-10-06.md` and `README_2026-10-02.md` before it. |
+| `claude_diag/junction_view/` | Depth slices of the tube junction before and after the rebuild. |
+| `claude_diag/runs/L149_*`, `L159_*`, `L12_stabdamp_p3/` | Earlier bases and the paper fit (2026-09-24 to 10-05); superseded, kept for history (sections further down). |
 
-## The current base: `L149_seamspr_pm_outer`
+## The goal since 2026-10-09: range of motion
+
+The target is Luo et al. 2015 (J Biomech): impairing the supports must be able to move the walls at least as far as the
+paper's cases did (Ba >= +10 mm, Bp >= +10 mm below the hymen, apex motion >= 35 mm), while the healthy model stays
+unprolapsed (Ba, Bp < 0). Cases: healthy, the paper's P1 / P2 / F6-F8 cases, and MAX (levator 60 %, apical 80 %,
+anterior 50 %, posterior 95 % impaired). Shared settings: the remeshed perineal membrane, the cervix x3 (NOT FAITHFUL),
+the sphincter-side connectors x0.25 (NOT IN SOURCE), no compression in any connector spring.
+
+## The tube line
+
+`L258_tubecand_*` (main): the walls joined into a closed tube by curved side bands ("curves", x0.6 stiffness), an apex cap,
+no pressure on the curves. Healthy Ba / Bp -14.0 / -17.5; MAX +18.4 / +17.2, apex motion 36 mm (every limit met). But in
+MAX the curves' ends next to the perineal body swell to 6x their volume and two elements fold inside out: the ends were
+point-tied inside the wall's hexes where the wall had been flared into them.
+
+`L283_junction_fine2z18_*` (candidate): the same model with the junction rebuilt (NOT IN SOURCE: `build_batch278.py full`,
+then `build_batch280.py --zmax 18 --split 2`): the wall's flare removed (its last layer straight, tied onto the perineal
+body's top face), the curves joined to the straight wall and their ends tied onto the perineal body's top face (no point
+ties), and every curve ring within 18 mm of the perineal body split in two (the wall rolls over its attachment there in
+MAX, which crushed the coarse rings).
+
+| run | Ba / Bp, apex motion | curve swelling, folded elements |
+|---|---|---|
+| `L258_tubecand_MAX` | +18.4 / +17.2, 36.3 mm | 6.1x, 2 |
+| `L283_junction_fine2z18_MAX` | +17.5 / +14.6, 35.5 mm | 3.3x, none |
+| `L283_junction_fine2z18_healthy` | -14.7 / -19.1 (main -14.0 / -17.5) | 1.8x, none |
+
+L283 runs ~1.5-2x slower than L258 (its logs, 25-30 MB, are not included). Pictures: `claude_diag/junction_view/`.
+
+## The ledge line
+
+`L228_ext5sl01_pmc_pmd_sph025` is the base (the walls' side seams with short extensions, "ledges", as a convergence aid).
+`L271_ledge_cx3_chains_sheet30_*` adds the cervix x3 and turns every connector family into chains of springs inside a
+thin sheet at 30 % of its fibre stiffness (NOT IN SOURCE), which holds the healthy wall without compressive springs:
+healthy -9.7 / -20.4; MAX +30.7 / +23.9, apex motion 54 mm, smooth to full load. The single-compartment cases fall a
+little short (README_2026-10-09.md section 6; 25 % sheets reach a bit further with less healthy margin).
+
+## Earlier: the base of 2026-10-02, `L149_seamspr_pm_outer`
 
 The Abaqus model in FEBio 4 with every connector as a spring (no lofts), run to full load (t = 1). Compared with the
 source (everything not in the Abaqus model is marked NOT IN SOURCE in `L149_seamspr_pm_outer.feb.changes.txt`):
@@ -32,7 +70,7 @@ source (everything not in the Abaqus model is marked NOT IN SOURCE in `L149_seam
   outer arc;
 - **NOT IN SOURCE:** wall contacts against the levator (`walls_LA`) and the membrane (`walls_PM`).
 
-## The fit to the paper's prolapse cases: `L159_C3full_parcus042_*`
+## Earlier: the fit to the paper's prolapse cases, `L159_C3full_parcus042_*`
 
 The target is Luo et al. 2015 (J Biomech, rectocele and cystocele): cases P1 and P2, given as POP-Q points. The fit
 changes only the healthy model's connective tissue and wall stiffness, within x0.2 to x5. The best set so far, C3,
@@ -85,10 +123,10 @@ Python 3 with numpy (on Windows, `py -0p` lists the installed interpreters).
 - Python 3.10 with numpy; FEBio 4 (`febio4.exe` from FEBio Studio; `run_batch.sh` expects
   `C:/Program Files/FEBioStudio/bin/febio4.exe`).
 - `claude_diag/tools/paths.py` finds everything relative to its own location: the Abaqus source at the repository root,
-  and runs in `claude_diag/runs/<name>/<name>.feb`. Tools that read results use the skill's `scripts/` from
-  `skill/abaqus-febio-fea-pipeline/` in this repository. Many build scripts and tools default to earlier models in the
-  chain, which are not included; `L149_seamspr_pm_outer.feb` can serve as the base for new variants (the fit builder
-  `build_batch145.py` takes `--base RUN`; the others name their base in the script). The plot files (`.xplt`) are too large for GitHub: run a model to regenerate its results.
+  and runs in `claude_diag/runs/<name>/<name>.feb`. Tools that read results import the skill's `scripts/` from
+  `~/.claude/skills/abaqus-febio-fea-pipeline/scripts` (copy the skill there first, as above). Many build scripts and tools default to earlier models in the
+  chain, which are not included; the models above can serve as bases for new variants (most builders name their base in the
+  script; `build_batch280.py` takes the source run on the command line). The plot files (`.xplt`) are too large for GitHub: run a model to regenerate its results.
 - Every variant is written with a `<name>.feb.changes.txt` next to it that lists each change, and marks anything not in
   the Abaqus source as NOT IN SOURCE.
 
