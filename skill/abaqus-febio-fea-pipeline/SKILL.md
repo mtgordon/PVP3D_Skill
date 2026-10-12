@@ -212,6 +212,19 @@ in mind constantly:
    answer moves with the stiffness. Tension-only fibres did not help.
    -> `convergence-debugging.md` ("A contact-only seam"), `febio-xml-format.md` gotchas 27-29.
 
+14. **A part that "explodes" at an attachment under large motion: check the joint, then the mesh, not the stiffness.**
+   Measure it first (`scripts/element_volume_report.py`: V/V0 per hex; a negative ratio is a hex folded inside out
+   while FEBio still converges). Points of one part embedded inside another part's hexes (linear constraints on
+   natural coordinates) tore the elements next to them (6x volume, two folded) where the parts overlapped. Removing
+   the ties as a diagnostic halved the peak, but the ends slid 15-19 mm off. Spreading the ties made the fold
+   worse. What worked: no overlap (straighten the part that was reshaped into the other), a conforming or face-tied
+   join, and the end tied onto the neighbouring part's FACE. The rest of the fold was a roll-over: the wall everted
+   past its attachment and the coarse hex rings at the bend were crushed along the axis. Splitting EVERY whole ring
+   in the bend zone in 2 removed the folds at the same range. A 4-way split crawled at 1e-4 steps without failures.
+   Stiffening the part (k x5, or a stiffer end) also halved the swelling, but it cost the range the user wanted. A
+   self-contact `search_radius` of half the part's thickness or more grabs the part's own opposite face at rest.
+   -> `convergence-debugging.md` ("A part that balloons or folds at an attachment"), `febio-xml-format.md` gotcha 30.
+
 ## Command-line basics
 
 ```bash
@@ -301,6 +314,9 @@ Ready-to-use instead of re-deriving the same awk one-liners each time:
 - **`scripts/summarize_feb.py model.feb [--collapse PREFIX]`** -- one-line-per-item
   structural summary of a `.feb` for diffing versions section by section
   (Rule 1 of the geometry reference), with mesh blocks reduced to counts and hashes.
+- **`scripts/element_volume_report.py model.feb model.xplt [model.log] --prefix NAME [--t T]`** -- volume ratio V/V0 of
+  every hex8 in the domains named NAME*, from the plotted displacements (5-tet split): the most swollen, counts over
+  1.5x / 2x, the smallest (negative = folded inside out), and the peak by time (item 14).
 - **`scripts/xplt_reader.py`, `scripts/feb_model.py`** -- the plot-file reader
   (safe on multi-GB and still-being-written files; `x.surfaces` names the
   surfaces behind contact pressure/gap data) and the `.feb` parser the
@@ -366,7 +382,8 @@ Read these as needed -- they're where the deep, hard-won detail lives:
   `dyn_damping`, and why that damping holds heavy mass-scaled parts back.
   Gotcha 29 covers fibre mixtures (`uncoupled solid mixture` + a tension-only
   fibre), per-element directions and mapped material parameters, and a fibre
-  without its `<fiber>` that stops FEBio silently.
+  without its `<fiber>` that stops FEBio silently. Gotcha 30 covers a self-contact
+  search radius that reaches across the part's own thickness at rest.
 - **`references/geometry-cross-referencing.md`** -- techniques for working
   with huge FE text files without loading them whole: ID->coordinate lookup
   tables, coordinate-based cross-referencing between Abaqus and FEBio,
@@ -398,7 +415,9 @@ Read these as needed -- they're where the deep, hard-won detail lives:
   the plot file's failed iterations, the decouple test for "runs without
   part X", distinguishing global softening from a local event, checking the
   source's analysis type first, and running single-variable variants in
-  parallel.
+  parallel. "A part that balloons or folds at an attachment" covers point ties
+  inside another part's hexes, a roll-over at an attachment, and whole-ring
+  refinement of the bend (item 14).
 - **`references/lessons-learned.md`** -- a quick-scan table of specific
   mistakes made, how each was caught, and the generalizable lesson from
   each -- read this first if you want the fastest orientation on what

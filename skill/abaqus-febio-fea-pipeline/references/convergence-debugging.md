@@ -679,6 +679,40 @@ What converged with the seam left free (the next day, one change each):
 - **A looser displacement tolerance** (dtol 0.001 -> 0.01) carried a near-converging case with the same answer (within
   0.2 mm) in half the iterations. It did not carry the fully soft case.
 
+## A part that balloons or folds at an attachment
+
+Symptom: under the heaviest load case a few elements of one part, next to where it joins another part, swell to 3-6x
+their volume and one or two fold inside out; the user sees self-penetration or "an explosion", yet the run converges.
+Measure before changing anything: `scripts/element_volume_report.py` (V/V0 per hex from a 5-tet split; negative = folded),
+at the final state and by time (when it starts), and compare variants at MATCHED times, not at their different end times.
+
+What the reference case (a thick U-shaped hex band, the "curves", joined to a vaginal wall and the perineal body) showed,
+one change at a time:
+
+1. **Point ties inside another part's hexes were the trigger.** The band's end nodes sat inside the wall's hexes (a reshape
+   had flared the wall into the band) and were tied there with linear constraints on the host hex's shape functions.
+   Removing them (diagnostic) halved the peak and removed the folds, but the band's ends slid 15-19 mm off: not a fix.
+   Tying more nodes the same way lowered the peak but made the fold worse. Check the slip of formerly tied nodes against
+   their host points before calling a run without ties acceptable.
+2. **Self-contact settings did not help** (gotcha 30): a larger search radius broke the model at rest, `two_pass` alone
+   changed nothing.
+3. **Remove the overlap and join by faces.** Undo the reshape that pushed one part into the other (here: the wall's flare,
+   which needed its own new bottom nodes, tied onto the neighbour's facets, so the neighbour kept its shape), join the band
+   to the straightened wall face the way it was joined further along (shared nodes, hanging nodes tied onto the face or
+   edge), and tie the band's end onto the neighbouring part's FACE (weighted facet ties, gotcha 27). Snapping a node onto a
+   facet before tying can crush a hex: accept each snap only if the smallest sub-tet of its hexes stays positive. The face
+   ties to the neighbour were what helped; without them the rebuilt joint swelled like the original.
+4. **The remaining fold was a roll-over.** The wall everted past its attachment: the parts above moved 16-19 mm, the tied
+   end 13 mm, so the last coarse rings of the thick band were crushed along its axis (edges to 36 %) and bulged sideways
+   (to 2.3x). A thin wall bends through such a roll-over; a thick band with 2-3 rings cannot. Split the hexes along the
+   band's axis (new nodes on the axial edges, the facets of every surface on split hexes split too, new nodes on faces
+   shared with another part tied onto it). Split WHOLE rings (every hex joined through its lateral faces): a partial ring
+   leaves hanging nodes. Splitting only the last rings moved the fold up the band; splitting every ring in the bend zone
+   (here 18 mm) in 2 removed all folds at the same range, ~1.5-2x slower. A 4-way split crawled at steps of 1e-4 with no
+   failed steps (too many iterations per step).
+5. Stiffening the band (bulk modulus x5, or its end at x1) also halved the swelling but held the wall back 7 mm, which was
+   the motion the user wanted; prefer the joint and the mesh.
+
 ## When to stop guessing and ask for human input
 
 If several structurally different techniques (contact isolation, ramping,

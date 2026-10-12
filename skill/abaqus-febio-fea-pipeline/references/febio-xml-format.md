@@ -994,3 +994,13 @@ Checked on a 2x2x2 hex cube (FEBio 4.13), before any use on a real model:
   uniform value exactly; a map is how a band of stiffer elements goes into one domain without splitting it.
 - In the reference model neither fibre direction helped a contact-only seam stall (convergence-debugging.md): tension-only
   fibres add an on / off switch per integration point, and along the long axis they stalled earlier than without them.
+
+### 30. Self-contact: a search radius of half the part's thickness or more acts across the part at rest
+
+On a sliding-elastic self-contact of a solid part 2.3 mm thick (primary = secondary = its whole outer surface), raising
+`search_radius` from 0.5 to 3 mm failed at t 0 with 242 negative Jacobians; 1.5 mm and 1.0 mm crawled from the first step
+(steps 1e-7..1e-8, one element at 4.9x its volume by t 0.009), with or without `two_pass`. The search found the part's own
+opposite face across its thickness and pushed it apart. `two_pass 1` alone, at 0.5 mm, ran but changed nothing (it did not
+stop the part folding into itself). Keep a self-contact's search radius well below half the thinnest part in it; a
+penetration through a thick part at large strain is better fixed at its cause (gotcha 27, convergence-debugging.md "A part
+that balloons or folds at an attachment").
