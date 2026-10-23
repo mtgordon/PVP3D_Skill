@@ -3,7 +3,8 @@
 Material from converting the PVP3D pelvic-floor model (levator ani, vaginal wall, perineal body, and their supports) from
 Abaqus to FEBio, and from getting the FEBio version to converge, including the current FEBio models, their range of motion
 against the paper's prolapse cases, and the rebuilt tube junction. Updated 2026-10-23: it is now also the hand-over repo
-between Mark and a colleague: start with `CLAUDE.md` and `HANDOFF.md`.
+between Mark and a colleague: start with `notes/PROJECT_BRIEF.md` (what, why, how), then `HANDOFF.md`; `CLAUDE.md` is for
+Claude Code. Clone with `git config --global core.longpaths true` first, into a short path (e.g. `F:\PVP3D`).
 
 ## Contents
 

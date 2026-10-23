@@ -1,0 +1,2 @@
+base: claude_diag/runs/L446_srcw_cfibk_dr_cpks_wf4_s033_sm/L446_srcw_cfibk_dr_cpks_wf4_s033_sm.feb (tools/build_batch448.py)
+NOT IN SOURCE (spring ends): PM_conn 26 -> 27 springs, one on every node of the AVW outer distal row (x -2.9..5.6, seam nodes included), paired in x order with the fixed PM ends (end [10580] takes 2); PM_conn_mat scale 1 -> 0.962963 (family total unchanged); 4 ends moved off the AVW / patches [29669, 29314, 29313, 29670]; middle / inner rows of the end face free
