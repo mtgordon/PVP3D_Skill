@@ -44,7 +44,8 @@ def load(run):
 
 
 def deformed(X, run, tw):
-    sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
+    from paths import SKILL_SCRIPTS  # noqa: E402
+    sys.path.insert(0, SKILL_SCRIPTS)
     from xplt_reader import Xplt, converged_state_indices
     x = Xplt(os.path.join(RUNS, run, run + '.xplt'))
     idx = [i for i in converged_state_indices(x, os.path.join(RUNS, run, run + '.log')) if x.states[i][0] <= tw + 1e-9][-1]

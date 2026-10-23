@@ -5,7 +5,8 @@ usage: py -3.10 failed_attempts.py model.feb model.xplt model.log [--max 20]"""
 import argparse, os, re, sys
 from collections import defaultdict
 import numpy as np
-sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
+from paths import SKILL_SCRIPTS  # noqa: E402
+sys.path.insert(0, SKILL_SCRIPTS)
 from xplt_reader import Xplt  # noqa: E402
 import xml.etree.ElementTree as ET
 

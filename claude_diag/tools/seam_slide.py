@@ -11,7 +11,8 @@ import sys
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
+from paths import SKILL_SCRIPTS  # noqa: E402
+sys.path.insert(0, SKILL_SCRIPTS)
 from xplt_reader import Xplt  # noqa: E402
 from variants7 import Model7, JOBS  # noqa: E402
 from build_batch79 import _bedges, _dseg  # noqa: E402

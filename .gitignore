@@ -1,4 +1,12 @@
 __pycache__/
 *.pyc
 *.xplt
+*.log
 *.stdout
+*.out
+*.console.txt
+# Runs stay on the machine that ran them. Only the working bases go in, added by hand:
+#   git add -f claude_diag/runs/<run>/<run>.feb claude_diag/runs/<run>/<run>.feb.changes.txt
+claude_diag/runs/*
+# Excel lock files
+~$*

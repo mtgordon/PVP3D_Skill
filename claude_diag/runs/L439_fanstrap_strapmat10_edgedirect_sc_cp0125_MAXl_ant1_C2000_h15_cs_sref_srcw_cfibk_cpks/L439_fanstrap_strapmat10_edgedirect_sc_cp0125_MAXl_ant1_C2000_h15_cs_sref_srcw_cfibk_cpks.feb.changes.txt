@@ -1,0 +1,2 @@
+base: claude_diag/runs/L438_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw_cfibk_cpk/L438_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw_cfibk_cpk.feb (tools/build_batch416.py)
+NOT IN SOURCE (contact settings): curve_all_self.penalty 15 -> 5

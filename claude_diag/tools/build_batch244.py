@@ -22,7 +22,14 @@ from build_batch107 import LA100  # noqa: E402
 RUNS = os.path.join(JOBS, 'claude_diag', 'runs')
 CASES = {'healthy': (100, 1, 1, 1), 'P1': (80, 0.7, 1, 0.15), 'P2': (40, 0.4, 1, 0.15), 'F7A': (50, 0.2, 0.5, 0.1),
          'F8A': (50, 1, 0.1, 0.5), 'F6a0': (80, 1, 1, 0.15), 'F6a60': (80, 0.4, 1, 0.15),
-         'MAX': (40, 0.2, 0.5, 0.05)}   # 2026-10-09 evening: the heaviest combination (levator 60 %, apical 80 %, anterior 50 %, posterior 95 %)
+         'MAX': (40, 0.2, 0.5, 0.05),   # 2026-10-09 evening: the heaviest combination (levator 60 %, apical 80 %, anterior 50 %, posterior 95 %)
+         # 2026-10-18 MAX-lite (the user: MAX goes beyond what is needed): MAX with ONE support less impaired each
+         'MAXl_post02': (40, 0.2, 0.5, 0.2), 'MAXl_ap05': (40, 0.5, 0.5, 0.05), 'MAXl_la60': (60, 0.2, 0.5, 0.05),
+         'MAXl_ant1': (40, 0.2, 1, 0.05),
+         # per-target / second level: posterior unimpaired (anterior-heavy, for Ba), levator 50 %
+         'MAXl_post1': (40, 0.2, 0.5, 1), 'MAXl_la50': (50, 0.2, 0.5, 0.05),
+         'MAXl_post02ap05': (40, 0.5, 0.5, 0.2),   # the two that delay the snap, together
+         'MAXl_post01': (40, 0.2, 0.5, 0.1), 'MAXl_post0075': (40, 0.2, 0.5, 0.075)}   # inside the P-arcus cliff (x0.05 prolapses, x0.2 does not)
 P1 = CASES['P1']
 
 

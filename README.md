@@ -2,19 +2,24 @@
 
 Material from converting the PVP3D pelvic-floor model (levator ani, vaginal wall, perineal body, and their supports) from
 Abaqus to FEBio, and from getting the FEBio version to converge, including the current FEBio models, their range of motion
-against the paper's prolapse cases, and the rebuilt tube junction. Updated 2026-10-12.
+against the paper's prolapse cases, and the rebuilt tube junction. Updated 2026-10-23: it is now also the hand-over repo
+between Mark and a colleague: start with `CLAUDE.md` and `HANDOFF.md`.
 
 ## Contents
 
 | Path | What it is |
 |---|---|
-| `skill/abaqus-febio-fea-pipeline/` | A Claude Code skill: comparing and converting Abaqus (`.inp`) and FEBio (`.feb`) models, tracing a converted model back to its Abaqus source, and debugging FEBio convergence. `SKILL.md` is the entry point; `references/` holds the detail and `scripts/` the helper tools. |
+| `CLAUDE.md`, `HANDOFF.md` | How a Claude Code session starts here and the run rules; the hand-over log (newest first). |
+| `NEXT_SESSION_PROMPT_*.md`, `notes/MEMORY_NOTES.md` | The latest detailed hand-offs; the working rules (a copy of the project's Claude memory). |
+| `claude_diag/runs/L403_*`, `L423b_*`, `L431_*`, `L439_*`, `L440g_*`, `L444_*`-`L447_*` | **The current working bases** (2026-10-22/23: fine strap, canal at the source width, softer strap, fibre curves / walls). `.feb` + `.feb.changes.txt` only. |
+| `claude_diag/README_2026-10-09.md` section 8, `claude_diag/run_log_notes.csv`, `PVP3D_run_log.xlsx`, `claude_diag/PAPER_ADDENDUM_since_2026-10-19.md` | The run journal, the per-run notes and spreadsheet, the paper decisions. |
+| `.claude/skills/abaqus-febio-fea-pipeline/` | A Claude Code skill (Claude Code loads it from here as a project skill): comparing and converting Abaqus (`.inp`) and FEBio (`.feb`) models, tracing a converted model back to its Abaqus source, and debugging FEBio convergence. `SKILL.md` is the entry point; `references/` holds the detail and `scripts/` the helper tools. |
 | `PVP3DModel_job.inp` | The original Abaqus model: `*Dynamic, Explicit` over 1 s, pressures ramped with a smooth step, 291 `CONN3D2` connectors for the ligaments and attachments. |
 | `claude_diag/tools/` | Python tools that build the FEBio model variants from a base `.feb` (`variants*.py`, `build_batch*.py`), run batches (`queue_threads.sh`, `wait_any_end.sh`, `autostop_runs.sh`, `stop_runs.sh`) and read results (`rom_report.py`: range of motion; `pop_q_bump.py`: POP-Q points as Bump et al. 1996 define them; `curve_swell.py`: element swelling / folding; `junction_slices.py`: depth-slice pictures of the tube junction). |
 | `claude_diag/runs/L258_tubecand_*/` | **The tube line's main model** (2026-10-10): the vaginal canal as a closed tube (walls joined by curved side bands). See below. |
 | `claude_diag/runs/L283_junction_fine2z18_*/` | **The tube with the rebuilt junction** (2026-10-12; candidate, not yet adopted). See below. |
 | `claude_diag/runs/L228_ext5sl01_pmc_pmd_sph025/`, `claude_diag/runs/L271_ledge_cx3_chains_sheet30_*/` | **The ledge line**: its base, and the version without compressive springs that meets the range-of-motion limits. See below. |
-| `claude_diag/README_2026-10-09.md` | Notes for 2026-10-09 to 10-12 (range-of-motion goal, both lines, the junction rebuild: sections 3-7). `README_2026-10-06.md` and `README_2026-10-02.md` before it. |
+| `claude_diag/README_2026-10-09.md` | Notes from 2026-10-09 on (range-of-motion goal, both lines, the junction rebuild: sections 3-7; section 8 = the run journal to date). `README_2026-10-06.md` and `README_2026-10-02.md` before it. |
 | `claude_diag/junction_view/` | Depth slices of the tube junction before and after the rebuild. |
 | `claude_diag/runs/L149_*`, `L159_*`, `L12_stabdamp_p3/` | Earlier bases and the paper fit (2026-09-24 to 10-05); superseded, kept for history (sections further down). |
 
@@ -114,8 +119,8 @@ load (see the notes), so whether this is the equilibrium is being checked with t
 
 ## Using the skill
 
-Copy `skill/abaqus-febio-fea-pipeline/` into your Claude Code skills folder (`~/.claude/skills/`, on Windows
-`C:\Users\<you>\.claude\skills\`). Claude Code then offers it for work on `.inp` / `.feb` files. The scripts need
+The skill is in `.claude/skills/abaqus-febio-fea-pipeline/`: Claude Code started in this repo loads it as a project skill. To
+use it elsewhere, copy it into `~/.claude/skills/` (on Windows `C:\Users\<you>\.claude\skills\`). Claude Code then offers it for work on `.inp` / `.feb` files. The scripts need
 Python 3 with numpy (on Windows, `py -0p` lists the installed interpreters).
 
 ## Using the tools

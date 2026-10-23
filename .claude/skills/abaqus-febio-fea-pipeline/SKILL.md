@@ -383,7 +383,8 @@ Read these as needed -- they're where the deep, hard-won detail lives:
   Gotcha 29 covers fibre mixtures (`uncoupled solid mixture` + a tension-only
   fibre), per-element directions and mapped material parameters, and a fibre
   without its `<fiber>` that stops FEBio silently. Gotcha 30 covers a self-contact
-  search radius that reaches across the part's own thickness at rest.
+  search radius that reaches across the part's own thickness at rest. Gotcha 31 covers a dtmax load curve (its value is the max step, its
+  points are must points). Gotcha 32 covers one-sided shell contact and shell-to-shell contact (the two surfaces must face each other). Gotcha 33 covers spring contact: `discrete contact` cannot be set up from a 4.13 .feb file; a thin solid "rope" with a tension-only fibre can carry contact. Gotcha 34 covers `contact potential`: it holds a gap between two separate surfaces but is unstable as a self-contact. Gotcha 35 covers counting crossings fairly when a shell sheet has been turned into a thin solid.
 - **`references/geometry-cross-referencing.md`** -- techniques for working
   with huge FE text files without loading them whole: ID->coordinate lookup
   tables, coordinate-based cross-referencing between Abaqus and FEBio,

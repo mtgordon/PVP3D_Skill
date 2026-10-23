@@ -42,7 +42,7 @@ def own_curve_end_mat(m):
     m.log.append('curve_end_PM_conn: its own copy of PM_conn_mat (curve_end_PM_conn_mat, same table) so PM_conn can be chained')
 
 
-def build(case, src=SRC, prefix='L262_tubemain_chains', sheet_m=0.05, skip=()):
+def build(case, src=SRC, prefix='L262_tubemain_chains', sheet_m=0.05, skip=(), fan=False):
     la, ap, ant, post = CASES[case]
     m = Model111(os.path.join(RUNS, src, src + '.feb'))
     m.log.append(f'{src} -> the springs + lofts (chains) version, case {case}')
@@ -51,6 +51,10 @@ def build(case, src=SRC, prefix='L262_tubemain_chains', sheet_m=0.05, skip=()):
     if la != 100:
         la_healthy_pct(m, la)
     key = {'AVW-Para': ant, 'CL': ap, 'USL': ap, 'P-arcus': post}
+    if fan:   # 2026-10-16 (the user: the PM_avw_bottom sheet does not cover the curve-tip springs next to it): the curve
+        # tip -> PM fan lofted as ONE sheet per side: PM_avw_bottom + curve_end_PM_conn chained together
+        SHEETS['PM_avw_bottom_left'] = ('PM_avw_bottom_left_fan', ['PM_avw_bottom_left_conn', 'curve_end_PM_conn'], 'x-')
+        SHEETS['PM_avw_bottom_right'] = ('PM_avw_bottom_right_fan', ['PM_avw_bottom_right_conn', 'curve_end_PM_conn'], 'x+')
     gone = set()
     for sheet in SHEETS:
         s = next((v for k, v in key.items() if sheet.startswith(k)), 1.0)
@@ -78,7 +82,7 @@ def build(case, src=SRC, prefix='L262_tubemain_chains', sheet_m=0.05, skip=()):
 if __name__ == '__main__':
     import argparse
     ap_ = argparse.ArgumentParser()
-    ap_.add_argument('cases', nargs='+'); ap_.add_argument('--src', default=SRC); ap_.add_argument('--prefix', default='L262_tubemain_chains'); ap_.add_argument('--sheet', type=float, default=0.05); ap_.add_argument('--skip', default='')
+    ap_.add_argument('cases', nargs='+'); ap_.add_argument('--src', default=SRC); ap_.add_argument('--prefix', default='L262_tubemain_chains'); ap_.add_argument('--sheet', type=float, default=0.05); ap_.add_argument('--skip', default=''); ap_.add_argument('--fan', action='store_true')
     a = ap_.parse_args()
     for c in a.cases:
-        print(build(c, a.src, a.prefix, a.sheet, tuple(x for x in a.skip.split(',') if x)))
+        print(build(c, a.src, a.prefix, a.sheet, tuple(x for x in a.skip.split(',') if x), a.fan))

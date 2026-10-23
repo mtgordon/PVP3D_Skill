@@ -1,0 +1,2 @@
+base: claude_diag/runs/L423b_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw/L423b_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw.feb
+NOT IN SOURCE (our strap): the fan strap material x1/3 (the user 10-23: "try a run with a softer strap"): left: c1 0.0833 -> 0.0277667, fibre E 29.5 -> 9.83333; right: c1 0.0833 -> 0.0277667, fibre E 29.5 -> 9.83333 (k 10 unchanged). One change.

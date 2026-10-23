@@ -1,5 +1,5 @@
 """Batch 120 (2026-09-29, the user's request): the levator (LA) and perineal body (PeB) with Jing, Ashton-Miller &
-DeLancey 2012 (J Biomech 45:455-460; Paper with Levator Tissue Data (Dejun Jing).pdf;
+DeLancey 2012 (J Biomech 45:455-460; C:\\Users\\mgordon\\Downloads\\Paper with Levator Tissue Data (Dejun Jing).pdf;
 text claude_diag/scratch_2026-09-29/jing_levator.txt, eq. 1 read from the rendered page 3):
   W = C (I1 - 3) + k1 / (2 k2) [exp(k2 (lam^2 - 1)^2) - 1]  (fibre term for lam >= 1 only; the paper prints (I1 - 1)
   and no "- 1" in the bracket, taken as the standard Holzapfel form), quasi-linear viscoelastic with long-term G_inf;

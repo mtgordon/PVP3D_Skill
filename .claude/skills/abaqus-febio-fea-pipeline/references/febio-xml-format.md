@@ -1004,3 +1004,76 @@ opposite face across its thickness and pushed it apart. `two_pass 1` alone, at 0
 stop the part folding into itself). Keep a self-contact's search radius well below half the thinnest part in it; a
 penetration through a thick part at large strain is better fixed at its cause (gotcha 27, convergence-debugging.md "A part
 that balloons or folds at an attachment").
+
+### 31. A dtmax load curve: its value IS the maximum step, and its points become must points
+
+`<time_stepper><dtmax lc="N">0.005</dtmax>` with a load curve N: the number in the tag is ignored; the curve's value is
+dtmax at each time, and the curve's points become must-point times. Tested on a 2-block file (4.13): a curve 0.05 -> 0.01
+between t 0.4 and 0.6 gave steps of exactly 0.01 there. Use it to cap the step through a known event window. It does not
+stop a fast structural collapse: there the solver already takes small steps and nodes still move a lot per step.
+
+### 32. Shell contact is one-sided; shell-to-shell works when both contact surfaces face each other
+
+On a 2-block test (4.13), a tri3 shell sheet pushed into a hex block (sliding-elastic, sheet primary) made contact only
+when the sheet's normal faced the block; `shell_bottom_primary 1` flips which face works; `two_pass 1` pushes harder but
+does not make it two-sided. So a shell that can touch a part from either side needs two contacts (top and bottom).
+
+Shell-to-shell sliding-elastic DOES work. A first test said it never engaged, but that test was wrong: every node of the
+target shell was fixed while the sheet had a prescribed displacement, so the sheet reached its prescribed position
+whether the contact acted or not. **Never test a contact with prescribed motion against a fully fixed target.** Pin only
+the target's edge and measure how far its middle moves. The fixed test (8 x 8 quad target pinned on its edge, tri3
+sheet pushed 1.2 through it): the contact engages cleanly when the two contact SURFACES' facet normals face each other.
+It is the winding of the facets in the `<Surface>` that counts, not the element normals. Rewinding only the surface
+(the elements unchanged) made a non-working pair work, with `shell_bottom_secondary` 0 or 1. With the element normals
+facing each other, `shell_bottom_secondary 1` held; 0 engaged and then failed at the shell plane. Pairs facing away
+never engaged. `sliding-facet-on-facet` and `sliding-node-on-facet` either went through or failed. Rule for a real
+model: write each shell contact surface wound to face the other part, then check the gap on a run.
+
+Two more limits, found on the reference model's lofts against a shell arch (2026-10-17). (1) A sheet that meets the other
+surface EDGE-ON is never caught by sliding-elastic: on a 2-part test the sheet passed straight through with one direction, both
+directions, `two_pass` and the roles swapped; `sliding-node-on-facet` / `sliding-facet-on-facet` failed at engagement. A thin
+SOLID sheet (one hex or penta6 layer of the shell's thickness) is caught, because its edge is a real face. (2) A one-pass
+contact checks only the primary's nodes: the secondary's nodes (e.g. a free edge of the arch) can go through the sheet
+unseen, and a search_radius smaller than a step's motion loses nodes (radius 1 lost them, 3 held to mid-load).
+Count crossings both ways (primary nodes through the secondary and the reverse) before calling a contact good.
+
+### 33. Springs cannot carry contact from the .feb file in FEBio 4.13; a thin solid "rope" can
+
+FEBio 4.13's febiomech has `discrete contact` (FEDiscreteContact: the nodes of a discrete set against a surface, penalty /
+augmented Lagrangian, closest-point projection with no search radius) and `discrete contact2` (for `deformable-spring` "wire"
+domains). Neither can be set up from the file: `<Constraints><constraint type="discrete contact" surface="S">` parses, but no
+attribute or child tag attaches the springs (`discrete_set`, `discrete`, `set`, ... are rejected). Without one it runs and the
+springs pass straight through. `discrete contact2` fails to initialise; `<discrete type="wire">` makes FEBio exit while reading.
+For a connector that must touch a part, model it as a thin solid rope: a column of hex8, an `uncoupled solid mixture` of a
+weak Mooney-Rivlin matrix and a tension-only `fiber-exp-pow-uncoupled` along the rope (fit the fibre to the connector's
+force-elongation table divided by the rope's cross-section). Its side faces work in an ordinary sliding-elastic contact. On a
+2-part test, penalty 1 let a shell plate cut half-way into a 0.5 mm rope; penalty 10 held them face to face.
+Two limits found in the full model. A rope needs a matrix stiff enough to hold it at rest (E 0.1 with a fibre that starts
+at zero stiffness crawled from the first step; E 1 ran and added only 2-10 % to the tension response). And a rope cannot go
+slack: a connector family that shortens under load (the reference model's AVW-Para at its MAX case, up to 19 %) makes the
+ropes buckle until their hexes fold. A spring just goes slack. Use ropes only for connectors that stay taut.
+
+### 34. `contact potential` works as a pair of separate surfaces, not as a self-contact
+
+FEBio 4.13 has `<contact type="contact potential">` (FEContactPotential; parameters `kc`, `p`, `R_in`, `R_out`, `R0_min`,
+`w_tol`, `check_intersections`, `integration_rule`, `exclude_neighbors`): a repulsion that grows as two surfaces come within
+`R_out`, with no search radius to lose a node. A tempting fix for a self-contact that loses nodes past its search radius
+(gotcha 30). Tested on two blocks of a soft Yeoh material (c1 ~1e-3 MPa) 0.5 mm apart, squeezed together:
+- As a PAIR (primary and secondary different surfaces): `kc` 1e-4, `p` 4, `R_in` 0.2, `R_out` 0.4 held a gap (0.5 -> 0.18 mm
+  under a 0.7 mm squeeze; sliding-elastic penalty 5 went 0.18 mm through). Some runs needed `max_retries` 15 / a smaller
+  `dtmax` to finish.
+- As a SELF-contact (one surface named as both primary and secondary): the facing faces wrinkled and the gap closed in jumps
+  (0.35 -> 0.05 mm) or the run failed with negative Jacobians. Neighbouring facets of one flat face did not repel at rest.
+So it does not replace a self-contact on a folding part. A pair contact needs the colliding facets split into two sets
+that do not collide within themselves and are farther apart than `R_out` at rest. Check that before building one: on the
+reference model's folds most facets were on both sides of a collision.
+
+### 35. Comparing solid lofts with shell lofts: count the original sheet nodes only
+
+After a shell sheet is extruded into a thin solid (one wedge layer), its new top-layer nodes near the anchors start only
+0.3-0.5 mm from the part the sheet attaches to, and they cross it as the wedges turn with the attachment. A crossing count
+over all the solid's nodes then looks several times worse than the shell version (9-12 nodes "through" an arch instead of
+1-2) when the original sheet nodes behave the same (2-3 vs 1-2). This was first misread as the contact pulling nodes
+through from behind a facet with a large `search_radius`; that mechanism is plausible for a sheet that straddles its
+target, but it was not what the counts showed. Compare like with like (the bottom-layer sheet nodes), and run the
+solid-sheet version without the contact as the control.

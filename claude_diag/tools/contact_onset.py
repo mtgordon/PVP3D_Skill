@@ -14,11 +14,12 @@ import sys
 
 import numpy as np
 
-sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
+from paths import SKILL_SCRIPTS  # noqa: E402
+sys.path.insert(0, SKILL_SCRIPTS)
 from xplt_reader import Xplt  # noqa: E402
 from pvw_la_onset import log_steps  # noqa: E402
 
-RUNS = r'F:\Developing PVP3D Model for FEBio\claude_diag\runs'
+RUNS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'runs')
 
 
 def main():

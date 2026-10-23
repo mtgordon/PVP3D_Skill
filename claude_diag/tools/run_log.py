@@ -2,7 +2,7 @@
 per the user's feedback the same evening, then extended to every run folder).
 
 Every folder in claude_diag/runs (except _*) gets a row, in the order the runs were built (the .feb's time). The text
-of each row comes from claude_diag/run_log_notes.csv (run, why, result, label, focus, source); the rest from the run's
+of each row comes from claude_diag/run_log_notes.csv (run, why, result, label, focus, source, paper); the rest from the run's
 own files. Columns, left to right:
   Run               the file name (a link to the .feb), its line (springs / lofts, from the name or its ancestors), the
                     run or file it was built from;
@@ -182,7 +182,7 @@ STAB = 'Stabilisation springs (not in the source)'
 CURVE = 'force curve (elongation mm, force N)'
 PARAM_ORDER = ('c1', 'm1', 'c2', 'm2', 'c3', 'm3', 'c4', 'm4', 'c5', 'm5', 'c6', 'm6', 'E', 'v', 'G', 'k', 'density',
                'shell thickness', 'shell formulation', 'shell_normal_nodal', 'sets', 'springs', 'scale', 'measure', CURVE)
-OLD_JOBS = ()  # the project's old absolute run paths; not needed elsewhere
+OLD_JOBS = ('c:\\users\\mgordon\\downloads\\jobs\\', 'c:/users/mgordon/downloads/jobs/')
 
 
 # ---- reading a .feb (each file once; only its cells are kept) --------------------------------------------------------
@@ -745,6 +745,7 @@ STATIC = [
     ('Result', 'LA displacement at the end (mm)', '|u| max', 'la_max', 9, 'num1'),
     ('What was changed', 'What was changed from the base', None, 'changed', 60, 'wrap'),
     ('What was changed', 'Label', None, 'label', 18, 'wrap'),
+    ('What was changed', 'Paper (methods / supplement / skip)', None, 'paper', 12, 'wrap'),
 ]
 LOAD_COLS = [('Loads', 'Pressure (MPa)', L, ('m', 'load:' + L), 10, 'gen') for L in LOADS] + [
     ('Loads', 'Pressure tangent (symmetric_stiffness)', None, ('m', 'p_sym'), 11, 'gen'),
@@ -884,7 +885,7 @@ def build_rows(notes):
                'basemark': f"BASE: {bm[0].strip('()')}, adopted {bm[2]}" if bm else '',
                'why': n.get('why', ''), 'result': n.get('result', ''),
                'source': n.get('source', ''), 'changed': change_text(note, body),
-               'label': labels(note, body, n.get('label', ''))}
+               'label': labels(note, body, n.get('label', '')), 'paper': n.get('paper', '')}
         row.update(results(run, focus, procs, lines))
         if row.get('measure_note'):
             row['result'] = (row['result'] + ' ' if row['result'] else '') + f"[{row['measure_note']}]"
@@ -1106,7 +1107,7 @@ LEGEND = [
      'claude_diag/run_log_notes.csv; everything else is read from the run\'s own files: <run>.feb (the model), '
      '<run>.feb.changes.txt (what was changed and the base), <run>.log (status, t reached, failed attempts, wall time), '
      '<run>.xplt (the measurements) and runs/_autostop.txt (start time, threads, stops). Runs live in '
-     'claude_diag/runs/<run>/.'),
+     'claude_diag/runs/<run>/ in the project folder.'),
     ('Why / result text', '"written ..." = written when the run was discussed; "drafted 2026-09-26 from ..." = drafted '
      'afterwards from the notes named (the READMEs, SESSION_SUMMARY.md, the build script, the change log). Drafted '
      'text may miss what was said in conversation; the numbers in the other columns are read from the files.'),

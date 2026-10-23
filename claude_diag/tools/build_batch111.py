@@ -67,7 +67,9 @@ class Model111(Model109):
         loft, sets, side = SHEETS[sheet]
         X = self.nodes()
         side_nodes = None
-        if side:
+        if side in ('x+', 'x-'):     # 2026-10-16: a side by the x sign of the connector's tissue end (curve_end_PM_conn)
+            side_nodes = None
+        elif side:
             side_nodes = {n for e in next(d for d in self.mesh.findall('DiscreteSet') if d.get('name') == side)
                           .findall('delem') for n in map(int, e.text.split(','))}
         rails = []                       # (set, a, b)
@@ -76,7 +78,14 @@ class Model111(Model109):
             pairs, mat, b, ds = self._spring_set(s)
             mats[s] = mat
             for a, bb in pairs:
-                if side_nodes is None or a in side_nodes:
+                if side in ('x+', 'x-'):
+                    # orient every rail PM / anchor end -> tissue end (the end with the larger |x| is the PM arch here)
+                    if abs(X[a][0]) < abs(X[bb][0]):
+                        a, bb = bb, a
+                    if (X[bb][0] > 0) != (side == 'x+'):
+                        continue
+                    rails.append((s, a, bb))
+                elif side_nodes is None or a in side_nodes:
                     rails.append((s, a, bb))
         assert rails, sheet
         B = np.array([X[b] for _, _, b in rails])

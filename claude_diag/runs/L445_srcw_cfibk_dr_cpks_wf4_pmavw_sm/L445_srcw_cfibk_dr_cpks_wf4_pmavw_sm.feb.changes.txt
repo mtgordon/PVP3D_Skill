@@ -1,0 +1,2 @@
+base: claude_diag/runs/L444_srcw_cfibk_dr_cpks_wf4_sm/L444_srcw_cfibk_dr_cpks_wf4_sm.feb (tools/build_batch445.py)
+NOT IN SOURCE (spring ends): PM_conn 26 AVW-side ends onto the AVW distal row only (25 interior nodes x -2.6..5.3, seam nodes [1775, 1735] excluded, node [1722] takes 2), paired in x order with the fixed PM ends; 4 ends moved off the seam / corner patches [29669, 29314, 29313, 29670]

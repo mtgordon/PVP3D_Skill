@@ -7,10 +7,11 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-sys.path.insert(0, os.path.expanduser('~/.claude/skills/abaqus-febio-fea-pipeline/scripts'))
+from paths import SKILL_SCRIPTS  # noqa: E402
+sys.path.insert(0, SKILL_SCRIPTS)
 from xplt_reader import Xplt  # noqa: E402
 
-RUNS = r'F:\Developing PVP3D Model for FEBio\claude_diag\runs'
+RUNS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'runs')
 run = sys.argv[1]
 want = [float(v) for v in sys.argv[2:]] or [1.0]
 root = ET.parse(os.path.join(RUNS, run, run + '.feb')).getroot()

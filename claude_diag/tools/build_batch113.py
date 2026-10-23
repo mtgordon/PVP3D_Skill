@@ -1,7 +1,7 @@
 """Batch 113 (2026-09-29, the user's request): the perineal membrane as a structure instead of a reference.
 Our model already has the PM: PM_Plane (the source's display body, a U-shaped band of 350 S4R / quad4 shells; in FEBio a
 fixed rigid body, 0.5 mm, used only as the hymenal reference). The user pointed to OPAL325_PM_mid in
-Normal_Generic_copy.inp (a different model; NOT brought in) for how a PM is handled there:
+C:\\Users\\mgordon\\Downloads\\Normal_Generic_copy.inp (a different model; NOT brought in) for how a PM is handled there:
   * its outer edge is fixed: *Boundary PM on nodes 1-53, dofs 1-6 (clamped), one continuous 53-node stretch of its
     121-node boundary; the perineal body is tied to 5 consecutive nodes (101-105) of the free part (Tie PM-PBody);
   * shell section 2.0 mm, material PARAVAG_H_highdensity: *Hyperelastic, n=2 (polynomial) from uniaxial test data,

@@ -1,0 +1,2 @@
+base: claude_diag/runs/L423_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw/L423_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw.feb
+the two spring_patch_ties blocks merged into one (build_batch288 --only added a second block of 2 anchors whose near-zero multipliers never met the relative augmentation tolerance: ~10 augmentations a step, 3x slower than L403). Nothing else changed.

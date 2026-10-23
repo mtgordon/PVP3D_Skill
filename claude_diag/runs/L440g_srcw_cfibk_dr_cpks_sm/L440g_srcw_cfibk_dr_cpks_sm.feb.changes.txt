@@ -1,0 +1,2 @@
+base: claude_diag/runs/L440_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw_cfibk_dr_cpks/L440_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw_cfibk_dr_cpks.feb (tools/build_batch443.py)
+NOT IN SOURCE (our strap): 8 strap rim mid-edge nodes merged into the curve's refined rim nodes (moved 0.002-0.219 mm; 29472->30731, 29499->30730, 29525->30729, 29551->30728, 29584->30895, 29611->30896, 29637->30897, 29663->30898); 24 strap_refine_ties rows removed; smallest strap sub-tet 0.1839

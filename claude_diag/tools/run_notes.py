@@ -1,12 +1,12 @@
 """Add or update rows of claude_diag/run_log_notes.csv (the hand-written part of PVP3D_run_log.xlsx; run_log.py rebuilds it).
-usage: py -3.10 run_notes.py RUN [--why TEXT] [--result TEXT] [--label TEXT] [--focus rotation|pvw|la|] [--source TEXT]
+usage: py -3.10 run_notes.py RUN [--why TEXT] [--result TEXT] [--label TEXT] [--focus rotation|pvw|la|] [--source TEXT] [--paper methods|supplement|skip]
 A new run gets a row; for an existing run only the given fields change. The file keeps its UTF-8 BOM and column order."""
 import csv
 import os
 import sys
 
 NOTES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'run_log_notes.csv')
-FIELDS = ['run', 'why', 'result', 'label', 'focus', 'source']
+FIELDS = ['run', 'why', 'result', 'label', 'focus', 'source', 'paper']
 
 
 def main(argv):

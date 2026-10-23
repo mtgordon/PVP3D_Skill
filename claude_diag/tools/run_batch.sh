@@ -1,6 +1,6 @@
 #!/bin/bash
 # usage: run_batch.sh THREADS name1 name2 ...   (each name = claude_diag/runs/<name>/<name>.feb)
-FEBIO="/c/Program Files/FEBioStudio/bin/febio4.exe"
+FEBIO="${FEBIO4:-/c/Program Files/FEBioStudio/bin/febio4.exe}"
 RUNS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../runs" && pwd)"
 T=$1; shift
 for n in "$@"; do

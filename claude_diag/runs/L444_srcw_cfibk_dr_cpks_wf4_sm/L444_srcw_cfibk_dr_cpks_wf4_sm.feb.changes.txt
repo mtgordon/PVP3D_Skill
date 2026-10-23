@@ -1,0 +1,2 @@
+base: claude_diag/runs/L442c_srcw_cfibk_dr_cpks_wfib_sm/L442c_srcw_cfibk_dr_cpks_wfib_sm.feb (tools/build_batch444.py)
+NOT IN SOURCE (wall material): Wall_fibre (AVW / PVW) -> 4 in-plane tension-only fiber-pow-linear-uncoupled fibres at 0,45,90,135 deg of the per-element mat_axis, E 0.014 beta 2.5 lam0 1.04, matrix Mooney-Rivlin c1 0.000208, k 0.35 (source wall k); strip test: tension within ~10 % of the wall law to +30 % in any in-plane direction, compression 14x softer

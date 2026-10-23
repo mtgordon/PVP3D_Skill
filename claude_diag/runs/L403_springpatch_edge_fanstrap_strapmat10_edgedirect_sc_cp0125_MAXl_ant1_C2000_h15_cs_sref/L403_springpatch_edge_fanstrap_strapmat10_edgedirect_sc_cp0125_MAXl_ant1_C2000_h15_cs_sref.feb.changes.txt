@@ -1,0 +1,2 @@
+base: claude_diag/runs/L399c_springpatch_edge_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs/L399c_springpatch_edge_fanstrap_strapmat10_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs.feb (tools/build_batch404.py)
+NOT IN SOURCE (the user 10-22): the fan strap refined 4x in-plane: 64 wedges -> 256 (one layer), 224 mid-edge nodes; fibre directions copied to the children; 8 mid-edge nodes on tied edges tied to their edge (strap_refine_ties), 8 added to NodeSet curve_end_PM_anchors; surface facets refined: fanstrap_curves_primary 116, curve_strap_secondary 64
