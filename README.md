@@ -12,7 +12,7 @@ Claude Code. Clone with `git config --global core.longpaths true` first, into a 
 |---|---|
 | `CLAUDE.md`, `HANDOFF.md` | How a Claude Code session starts here and the run rules; the hand-over log (newest first). |
 | `NEXT_SESSION_PROMPT_*.md`, `notes/MEMORY_NOTES.md` | The latest detailed hand-offs; the working rules (a copy of the project's Claude memory). |
-| `claude_diag/runs/L403_*`, `L423b_*`, `L431_*`, `L439_*`, `L440g_*`, `L444_*`-`L447_*` | **The current working bases** (2026-10-22/23: fine strap, canal at the source width, softer strap, fibre curves / walls). `.feb` + `.feb.changes.txt` only. |
+| `claude_diag/runs/L403_*`, `L423b_*`, `L431_*`, `L439_*`, `L440g_*`, `L444_*`-`L448_*`, `L459_*`-`L473_*` (10-24: L465 = the new base) | **The current working bases** (2026-10-22/23: fine strap, canal at the source width, softer strap, fibre curves / walls). `.feb` + `.feb.changes.txt` only. |
 | `claude_diag/README_2026-10-09.md` section 8, `claude_diag/run_log_notes.csv`, `PVP3D_run_log.xlsx`, `claude_diag/PAPER_ADDENDUM_since_2026-10-19.md` | The run journal, the per-run notes and spreadsheet, the paper decisions. |
 | `.claude/skills/abaqus-febio-fea-pipeline/` | A Claude Code skill (Claude Code loads it from here as a project skill): comparing and converting Abaqus (`.inp`) and FEBio (`.feb`) models, tracing a converted model back to its Abaqus source, and debugging FEBio convergence. `SKILL.md` is the entry point; `references/` holds the detail and `scripts/` the helper tools. |
 | `PVP3DModel_job.inp` | The original Abaqus model: `*Dynamic, Explicit` over 1 s, pressures ramped with a smooth step, 291 `CONN3D2` connectors for the ligaments and attachments. |

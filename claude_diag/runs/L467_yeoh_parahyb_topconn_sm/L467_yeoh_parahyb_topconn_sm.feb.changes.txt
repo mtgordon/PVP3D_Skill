@@ -1,0 +1,2 @@
+base: claude_diag/runs/L463_yeoh_parapatch_topconn_sm/L463_yeoh_parapatch_topconn_sm.feb (inline, 2026-10-24)
+NOT IN SOURCE (spring ends): the AVW-Para hybrid of L466 (patches on the coarse curve, the 7 lowest a side on single line nodes in the refined distal curve, rest z <= -29) on L463 (Yeoh walls): L463's patches removed the z -10..-14 crush (min V/V0 0.51 vs L459 0.16 at t 0.6) but swell the refined distal elements to 2.5x. One change vs L463.

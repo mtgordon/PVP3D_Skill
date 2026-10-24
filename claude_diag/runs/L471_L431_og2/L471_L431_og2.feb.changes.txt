@@ -1,0 +1,2 @@
+base: claude_diag/runs/L465_L431_ogmid/L465_L431_ogmid.feb (inline, 2026-10-24)
+NOT IN SOURCE (wall + curve material): L465 with the softer 2-term Ogden of L449-L457 instead of the middle law (c1 0.00221 m1 2, c2 0.00563 m2 8, k 0.35; curves x0.6, k 0.21; tension = source, compression -30 % 2.1x softer vs the middle law 1.6x): does a more compressible wall prolapse further on the strap model that runs? (materials keep the names Wall_ogmid / Curve_ogmid.) One change vs L465.

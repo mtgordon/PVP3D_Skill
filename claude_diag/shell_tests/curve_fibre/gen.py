@@ -14,6 +14,11 @@ elif mat == 'cfd':
          f'<solid type="Mooney-Rivlin"><c1>{c1m}</c1><c2>0</c2></solid>'
          f'<solid type="continuous fiber distribution uncoupled"><fibers type="fiber-pow-linear-uncoupled"><E>{E}</E><beta>{beta}</beta><lam0>{lam0}</lam0></fibers>'
          f'<distribution type="spherical"/><scheme type="fibers-3d-gkt"><nph>7</nph><nth>31</nth></scheme></solid></material>')
+elif mat == 'ogden':
+    # (10-23) isotropic, no fibres: 1-term uncoupled Ogden with a high exponent m (J-shaped: stiffens fast in tension)
+    c1, m1, kk = map(float, sys.argv[4:7]); c2, m2 = map(float, sys.argv[7:9]) if len(sys.argv) > 8 else (0, 2)
+    M = (f'<material id="1" name="m" type="Ogden"><density>1.06e-09</density><k>{kk}</k><c1>{c1}</c1><m1>{m1}</m1>'
+         f'<c2>{c2}</c2><m2>{m2}</m2></material>')
 elif mat == 'mixa':
     # (10-23 L442c review) in-plane tension-only fibres at the given angles (deg, from the pull direction x, in the x-y plane)
     c1m, E, beta, lam0, kk = map(float, sys.argv[4:9]); angs = [float(a) for a in sys.argv[9].split(',')]

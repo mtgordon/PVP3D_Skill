@@ -1,0 +1,2 @@
+base: claude_diag/runs/L466_ogmid_parahyb_topconn_sm/L466_ogmid_parahyb_topconn_sm.feb (inline, 2026-10-24)
+NOT IN SOURCE (numerical aid, gone by t 0.6): an initial traction on the AVW load surface (Load-AVW_surf) along the distal AVW toward the opening, direction [0.0, 0.366, -0.931], peak 2.8 kPa (20 % of the 14 kPa AVW pressure) at t 0.25, 0 at t 0 and from t 0.6 (load controller 4); the user 10-24 on L466 / L467: "pushes back instead of out on the AVW. Maybe add an initial traction force along the avw to get it moving forwards". One change vs L466.

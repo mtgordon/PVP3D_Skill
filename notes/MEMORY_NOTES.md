@@ -1,4 +1,4 @@
-# Working notes (from Mark's Claude Code memory, copied 2026-10-23)
+# Working notes (from Mark's Claude Code memory, copied 2026-10-24)
 
 A tidied copy of the auto-memory the Claude sessions on this project kept, one section per note. Dates are when the rule
 was set; later notes and `HANDOFF.md` win where they disagree. Left out: machine-specific notes (Box folder, disk space,
@@ -162,6 +162,7 @@ Then the user decided: "include the avw and pvw in the fiber modification as wel
 - Every new model gets the curves AND the AVW / PVW in fibre form, each fitted to its own source law in tension by the strip test.
 - AVW and PVW stay one tissue (`feedback-cervix-stiffer`).
 - WALLS (10-23 L442c failure): two fibres at 0/90 leave no in-plane shear stiffness (45 deg pull 6x softer) and k scaled down with the matrix lost volume control: the AVW stretched diagonally, V/V0 0.5-1.6 by t 0.25, then exploded. Use FOUR in-plane fibres at 0/45/90/135 deg (build_batch444: E 0.014, beta 2.5, lam0 1.04, c1 0.000208) and keep the SOURCE k (0.35): k does not stiffen uniaxial compression, it only stops volume drift. Strip-test pulls at 0 AND 22.5/45 deg, not just along a fibre. A spherical fibre distribution (cfd) is stiffer in compression than tension (lateral fibres engage) - not usable.
+- 10-23 later: the 4-fibre wall still drifted/folded at the AVW distal corners (L445 folded t 0.34) and the user saw direction-dependent stretch; the user asked for a no-fibre option -> L449: isotropic 2-term Ogden (c 0.00221/0.00563, m 2/8, k 0.35; build_batch449), tension = source within 2 %, compression -30 % 2.1x softer. Isotropic laws have equal small-strain stiffness in tension and compression; only the large-strain asymmetry is available. Check L449 before choosing the wall material for new bases.
 - Curves (L434): scaling k with the matrix was used there; recheck the curves with the same off-axis test.
 - Keep the curve self-contact penalty at 5: x3 and x4 crawl (L417, L437b, L438).
 - Related: `project-canal-width-source`, `project-curve-selfpen-rules`.
@@ -524,6 +525,24 @@ The chains-line curve folds (snap at t 0.73-0.78) appear only at MAX (milder cas
 **How to apply:** test MAX-lite variants one less-impaired support at a time (e.g. P-arcus x0.2, CL / USL x0.5, levator 60 %),
 and per-target cases (anterior-heavy for Ba, posterior-heavy for Bp); judge on targets met + folds < ~1 mm + healthy up.
 Keep MAX runs that work; do not drop MAX. Say whole-tissue vs local (`feedback-say-whole-vs-local`).
+
+### `project-overnight-2026-10-23`
+*night of 2026-10-23: user asleep; step back from L431 (the last clean t 1.5 run) one change at a time; middle-compressibility wall; stop/start freely; curve-first; push to GitHub at the end*
+
+Night of 2026-10-23/24 the user went to bed and said: keep running and find what works.
+
+- Baseline = **L431** (source-width canal + strap x1/3; first clean t 1.5 finish; source Yeoh walls, Curve_soft curves, old PM_conn layout, spring patches).
+- Step back: re-apply the day's changes to L431 ONE at a time (slower changes) to find which one made the runs fail (corner squeeze / self-penetration / crawling): Ogden / fibre walls, PM_conn layout, wider strap, strap -> springs, top connectors on the distal face, the AVW-Para fix.
+- The user likes a wall that can buckle / compress so it can go out the opening; try a law LESS compressible than the 2-term Ogden (2.1x softer at -30 %) but more than the source Yeoh (e.g. ~1.4x).
+- 21:55: L456-L459 (fixed AVW-Para line + springs) run well, corners within L431's range. The user (going to bed): the distal opening still looks weird, many POINTY elements there, "makes me think the straps were a better idea" -> keep a strap variant in the mix (e.g. L431-style strap with the fixed AVW-Para line).
+- If the running L456-L459 work, that direction is fine too.
+- Authority: stop and start runs freely (4 x 8 threads, no shared cores), log every decision (run_notes, README s8). Judge curve-first (`feedback-curve-first-no-popq`): t 1.5 settled, curve / strap crossing <= ~1 mm, no folded AVW-corner elements, nothing through the PM arch.
+- At the end: push the night's bases + notes to the GitHub hand-over repo (the user said yes for this night).
+
+**Outcome (10-24 07:00):** 5 clean t 1.5 finishes (L459, L465, L466, L467, L468). L465 = L431 + the middle law (Ogden c 0.00246/0.00561, m -4/8; 1.6x softer in compression) finishes and prolapses (Ba/Bp -2.7/-4.0), healthy L469 unprolapsed, MAX L470 ~-4/-5 (range not reached). AVW-Para: hybrid = patches on the coarse curve + single nodes in the refined zone. The user: softer compression did NOT fix the curve corner self-penetration -> the next researcher's focus. Details: NEXT_SESSION_PROMPT_2026-10-24.md.
+
+**Why:** a day of stacked changes (L439-L459) never got past t ~0.55; L431 had finished.
+**How to apply:** this night only; next session read the README s8 night entries and NEXT_SESSION_PROMPT for the outcome. Related: `feedback-fibre-walls`, `project-pvp3d-handoff`.
 
 ### `project-paper-sync`
 *From 2026-10-19 a paper on the new PVP3D model is being written; log paper-relevant decisions in the addendum as we go, tag runs with run_notes --paper, sync into the methods draft at batch end*

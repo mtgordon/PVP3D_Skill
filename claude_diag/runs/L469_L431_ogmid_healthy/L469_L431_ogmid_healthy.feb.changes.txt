@@ -1,0 +1,2 @@
+base: claude_diag/runs/L465_L431_ogmid/L465_L431_ogmid.feb (tools/build_batch424.py)
+case MAXl_ant1 -> healthy: AVW-Para-L_conn_mat 1 -> 1; AVW-Para-R_conn_mat 1 -> 1; CL-L_conn_1_mat 0.2 -> 1; CL-L_conn_2_mat 0.2 -> 1; CL-L_conn_3_mat 0.2 -> 1; CL-R_conn_1_mat 0.2 -> 1; CL-R_conn_2_mat 0.2 -> 1; CL-R_conn_3_mat 0.2 -> 1; USL-L_conn_1_mat 0.2 -> 1; USL-L_conn_2_mat 0.2 -> 1; USL-R_conn_1_mat 0.2 -> 1; USL-R_conn_2_mat 0.2 -> 1; Parcus_conn_mat 0.05 -> 1; levator 40 % -> 100 % of the healthy law

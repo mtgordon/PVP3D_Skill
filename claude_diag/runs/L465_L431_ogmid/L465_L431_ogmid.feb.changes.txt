@@ -1,0 +1,2 @@
+base: claude_diag/runs/L431_fanstrap_strap033_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw/L431_fanstrap_strap033_edgedirect_sc_cp0125_MAXl_ant1_C2000_h15_cs_sref_srcw.feb (inline, 2026-10-24)
+NOT IN SOURCE (wall + curve material): the middle law on L431 (the last clean t 1.5 base with the strap): AVW / PVW Vagina_AVW / Vagina_PVW (Yeoh) -> Wall_ogmid (Ogden c1 0.00246 m1 -4, c2 0.00561 m2 8, k 0.35: tension = source, compression -30 % 1.6x softer), the 3 curve domains Curve_soft -> Curve_ogmid (x0.6, k 0.21). The user's step-back test. One change vs L431.

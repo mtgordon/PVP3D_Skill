@@ -227,9 +227,14 @@ def main(src, new, arch=5.0, nw=5):
             n += 1; out.append(f'\t\t\t<{kind} id="{n}">' + ','.join(map(str, c)) + f'</{kind}>\n')
         return mm.group(0)[:mm.start(2) - mm.start(0)] + ''.join(out) + '\t\t</Surface>'
     t = re.sub(r'<Surface name="([^"]+)">\n(.*?)\t\t</Surface>', surf, t, flags=re.S)
-    blk = re.search(r'\t\t<constraint name="strap_refine_ties"[^>]*>\n(.*?)(?=\t\t\t<linear_constraint>)', t, re.S)
+    # the tie block copies strap_refine_ties' settings; build_batch443 (strap merged onto the fine rim, L440g on) removed that
+    # block, so then spring_patch_ties' (2026-10-23, L451)
+    for tmpl in ('strap_refine_ties', 'spring_patch_ties'):
+        blk = re.search(r'\t\t<constraint name="%s"[^>]*>\n(.*?)(?=\t\t\t<linear_constraint>)' % tmpl, t, re.S)
+        if blk:
+            break
     end = t.index('</constraint>\n', blk.start()) + len('</constraint>\n')
-    t = t[:end] + blk.group(0).replace('strap_refine_ties', 'strap_wide_ties') + ties + '\t\t</constraint>\n' + t[end:]
+    t = t[:end] + blk.group(0).replace(tmpl, 'strap_wide_ties') + ties + '\t\t</constraint>\n' + t[end:]
     msg = ('NOT IN SOURCE (the strap is ours): fan straps widened on their medial side (build_batch413, the user\'s red area): '
            + '; '.join(report) + f'; {len(newX)} new nodes, {len(new_anchor)} new fixed anchors, '
            f'{ties.count("<linear_constraint>") // 3} curve-edge nodes tied onto the rim; surfaces: '

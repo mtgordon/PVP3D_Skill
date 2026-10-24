@@ -34,6 +34,9 @@ model stays unprolapsed), with POP-Q points measured as Bump et al. 1996 define 
 4. **Spring attachments**: the PM connectors (AVW -> top of the PM arch) now go on every node of the AVW's distal row, not on the
    curve corners (L445, L448).
 
+5. **(10-24)** The middle law ("softer in compression, not too soft") runs on the strap model (L465, the new base) but did not
+   stop the curve corner penetrating itself: that is the open problem now.
+
 ## Where to look
 - `CLAUDE.md` (how a Claude Code session starts and the run rules), `HANDOFF.md` (whose turn, what is running, next).
 - `claude_diag/README_2026-10-09.md` section 8: the run-by-run journal (newest at the end); `claude_diag/run_log_notes.csv`.

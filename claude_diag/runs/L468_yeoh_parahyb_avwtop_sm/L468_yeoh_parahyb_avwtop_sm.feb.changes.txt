@@ -1,0 +1,2 @@
+base: claude_diag/runs/L467_yeoh_parahyb_topconn_sm/L467_yeoh_parahyb_topconn_sm.feb (inline, 2026-10-24)
+NOT IN SOURCE (spring layout): the top family PM_conn keeps only its 27 springs on the AVW outer distal row (the 22 curve-rim springs of build_batch457 removed), scale 0.5986 -> 0.963 = the old PM_conn total (26 x 1). Why: the night's models with all 49 top springs prolapse far less than L431 (Ba/Bp ~-28/-25 vs -0.0/-1.4 at t 1.5); tests whether the curve-rim springs hold the canal up. One change vs L467.

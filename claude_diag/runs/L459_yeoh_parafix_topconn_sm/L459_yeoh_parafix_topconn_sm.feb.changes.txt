@@ -1,0 +1,2 @@
+base: claude_diag/runs/L457_cog_wog_parafix_topconn_sm/L457_cog_wog_parafix_topconn_sm.feb (inline, 2026-10-23)
+Material change (back to the pre-10-23 laws): AVW / PVW Wall_ogden -> the source Yeoh Vagina_AVW / Vagina_PVW (c1 0.00209, c2 0.00659, k 0.35); the 7 curve domains Curve_ogden -> Curve_soft (Yeoh, 0.6 x the wall law, k 0.21; NOT IN SOURCE, the source has no curves). Isolation test: L457's springs / no strap with the old materials. One change (the wall + curve material).
