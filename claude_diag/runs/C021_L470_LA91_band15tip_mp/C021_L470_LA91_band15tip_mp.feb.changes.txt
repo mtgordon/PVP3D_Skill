@@ -1,0 +1,7 @@
+base: claude_diag/runs/L470_L431_ogmid_MAX/L470_L431_ogmid_MAX.feb (= L465 in the MAX case, Mark)
+C012 with the minimal band (C017: x1.5 at rest -45..-27 instead of -45..-19), i.e. C017 in the MAX case: the L91 levator package (build_batchC001, case MAX) + the curve band (build_batchC003) + must-point output (build_batchC004):
+- arcus anchored: 62 ATLA / P-arcus chain nodes 23677-23738 fixed (BC-ATLA-Arcus-sidewall) [NOT IN SOURCE]
+- levator law -> L91 v18 Yeoh (c1 0.0469426, c2 0.06567, k 4) = 2x LA100, at the case's 40 % (was 40 % of LA100) [NOT FAITHFUL]
+- contacts PVW_LA + walls_LA: penalty 0.5 -> 2, search_tol 0.01 -> 0.1 (as L91 v12) [NOT IN SOURCE]
+- curve band: 711 curve hexes with rest centroid -45 <= z < -27 (canal_wrap_hex_avw 169, canal_wrap_hex_pvw 186, canal_wrap_hex_pvw_fine 356) -> twin domains *_band with Curve_band = Curve_ogmid c1 / c2 / k x1.5 (same m1 / m2), parent damping copied [NOT IN SOURCE]
+- output only: plot_level PLOT_MUST_POINTS, dtmax 0.005 -> load curve 4 "dtmax_must_points" (0.005 everywhere, a point every 0.01 to t 1.5 = must points; ~151 plot states)

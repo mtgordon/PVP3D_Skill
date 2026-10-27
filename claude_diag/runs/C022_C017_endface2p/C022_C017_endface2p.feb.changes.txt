@@ -1,0 +1,3 @@
+base: claude_diag/runs/C017_C004_band15_tip/C017_C004_band15_tip.feb (tools/build_batchC018.py + two_pass)
+ONE change (the mid-canal crossing; C018 one-pass never engaged on C011):
+- contact curve_skin_endfaces: curve skin (curve_all) against the 552 curve end faces tied into the walls by canal_wrap_ends (new surface curve_endfaces), settings as curve_all_self (penalty 5, search radius 0.5, TWO passes (two_pass 1)) [NOT IN SOURCE]

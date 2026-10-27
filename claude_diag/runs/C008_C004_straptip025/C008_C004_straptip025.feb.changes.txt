@@ -1,0 +1,4 @@
+base: claude_diag/runs/C004_C001_mp/C004_C001_mp.feb (tools/build_batchC008.py)
+ONE change (Mark's corner idea 5: soften the strap where it pulls on the curve tip) [NOT IN SOURCE]:
+- PM_avw_bottom_left_sheet_solid: 36 of 128 strap elements within 3 mm of the 5 curve-shared nodes -> PM_avw_bottom_left_sheet_solid_tip, material PM_avw_bottom_left_sheet_mat_tip = PM_avw_bottom_left_sheet_mat with c1 and fibre E x0.25
+- PM_avw_bottom_right_sheet_solid: 37 of 128 strap elements within 3 mm of the 5 curve-shared nodes -> PM_avw_bottom_right_sheet_solid_tip, material PM_avw_bottom_right_sheet_mat_tip = PM_avw_bottom_right_sheet_mat with c1 and fibre E x0.25

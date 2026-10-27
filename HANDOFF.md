@@ -5,6 +5,26 @@ New here? Read `notes/PROJECT_BRIEF.md` first.
 Each entry: date, who, what ran (full run names) and what it showed, what is still running and where, what is next, and who
 has the turn. Only the person who has the turn starts runs.
 
+## 2026-10-26, the colleague (long session 10-24 -> 10-26 noon; all runs on the colleague's PC)
+- **Turn:** passes to Mark once the colleague pushes this (her call). Nothing running. Detailed hand-off: `NEXT_SESSION_PROMPT_2026-10-26.md`; journal: README section 8.
+- **Curve corner self-crossing fixed.** The curve hexes in the fold zone (rest z -45..-27) at the curve law x1.5
+  (build_batchC003). **Minimal fix = `C017_C004_band15_tip`**: corner 0 edges > 1 mm (was 1.42), strap 0, PM arch 0,
+  swelling 2.75x (was 4x). Checked in all three cases: MAXl_ant1 C017 Ba/Bp -10.1/-12.0, MAX `C021_L470_LA91_band15tip_mp`
+  -9.3/-11.3, healthy `C020_C002_band15_tip_mp` -21.1/-24.1 (unprolapsed). Band x1.25-x2, tip-only to rest z +10: all work.
+- **Levator:** the colleague's L91 law + fixed arcus + LA contact settings (build_batchC001; C004 = L465 + levator) removes
+  L465's PM-arch crossing and halves the strap crossing; nothing through the levator (max 8.4 mm).
+- **Price:** less descent than C004 (-6.2/-7.2), but that extra descent was the corner collapse: softening the rest of the curve
+  (C019) or the strap (C014) gives nothing back. MAX barely drops more than MAXl_ant1 (C012, C021), as in Mark's L470.
+- **Left open:** a sub-mm mid-canal crossing = the curve skin through the curve's OWN end faces tied into the walls
+  (curve_cross_tri_surfaces.py; the curve crosses no wall-only face, curve_wall_cross.py). End-face contacts do not act (C018,
+  C022); a curve-vs-walls_LA_primary contact (C023) chatters because that surface contains the curve skin. Optional:
+  `C024_C017_mid2` (+ curve x2 at rest z -12..+10) cuts it (> 0.5 mm edges 16 -> 4, deepest 0.90 -> 0.74) for ~0.5 mm less
+  descent. The range-of-motion targets (+10 mm) remain far off (strap-layout limit, as Mark found).
+- New tools: build_batchC001 / C003 / C004 / C008 / C018 / C023, curve_cross_diag.py, curve_cross_tri_surfaces.py,
+  curve_wall_cross.py, mrb_fibres.py (Slicer .mrb fibre mapping, ready; the Michigan file has not arrived).
+- Output: C-runs from C004 on use must-point output (~145 MB .xplt instead of 2-2.5 GB; plot_stride is ignored by FEBio).
+- Bases in the repo (git add -f): C001-C024 .feb + .changes.txt (L26 is needed by pop_q_bump.py; symlink L149 if missing).
+
 ## 2026-10-24, Mark (overnight session): turn passes to the colleague
 - **Turn:** the colleague. **Your focus (Mark): keep the curve corner from penetrating itself.**
 - **New base: `L465_L431_ogmid`** = L431 (strap x1/3, source-width canal) with the AVW / PVW / curves in a "middle" Ogden law

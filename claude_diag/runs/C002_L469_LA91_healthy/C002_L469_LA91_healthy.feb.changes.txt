@@ -1,0 +1,5 @@
+base: claude_diag/runs/L469_L431_ogmid_healthy/L469_L431_ogmid_healthy.feb (tools/build_batchC001.py, case healthy)
+ONE change: the colleague's L91_v18 levator (Mark 10-24: "use it in all future models"):
+- arcus anchored: 62 ATLA / P-arcus chain nodes 23677-23738 fixed (BC-ATLA-Arcus-sidewall) [NOT IN SOURCE]
+- levator law -> L91 v18 Yeoh (c1 0.0469426, c2 0.06567, k 4) = 2x LA100, at the case's 100 % (was 100 % of LA100) [NOT FAITHFUL]
+- contacts PVW_LA + walls_LA: penalty 0.5 -> 2, search_tol 0.01 -> 0.1 (as L91 v12) [NOT IN SOURCE]

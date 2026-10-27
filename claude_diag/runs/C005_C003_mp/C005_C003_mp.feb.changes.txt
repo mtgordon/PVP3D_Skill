@@ -1,0 +1,2 @@
+base: claude_diag/runs/C003_C001_band2/C003_C001_band2.feb (tools/build_batchC004.py)
+NO model change: output only: plot_level PLOT_MUST_POINTS, dtmax 0.005 -> load curve 4 "dtmax_must_points" (0.005 everywhere, a point every 0.01 to t 1.5 = must points; ~151 plot states)

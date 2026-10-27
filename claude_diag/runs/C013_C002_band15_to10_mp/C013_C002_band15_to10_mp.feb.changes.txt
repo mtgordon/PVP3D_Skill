@@ -1,0 +1,5 @@
+base: claude_diag/runs/C002_L469_LA91_healthy/C002_L469_LA91_healthy.feb
+C011 in the healthy case (one model change vs C002: the C011 curve band):
+- curve band: 2194 curve hexes with rest centroid -45 <= z < 10 (canal_wrap_hex_avw 808, canal_wrap_hex_pvw 906, canal_wrap_hex_pvw_fine 480) -> twin domains *_band with Curve_band = Curve_ogmid c1 / c2 / k x1.5 (same m1 / m2), parent damping copied [NOT IN SOURCE]
+- output only: plot_level PLOT_MUST_POINTS, dtmax 0.005 -> load curve 4 "dtmax_must_points" (0.005 everywhere, a point every 0.01 to t 1.5 = must points; ~151 plot states)
+- plot_stride 5 -> 1 (ignored anyway)

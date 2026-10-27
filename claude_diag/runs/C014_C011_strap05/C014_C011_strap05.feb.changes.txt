@@ -1,0 +1,2 @@
+base: claude_diag/runs/C011_C004_band15_to10/C011_C004_band15_to10.feb (tools/build_batch446.py)
+NOT IN SOURCE (our strap): the fan strap material x0.5 (as L431; k unchanged): PM_avw_bottom_left_sheet_mat: c1 0.0277667 -> 0.0138833, E 9.83333 -> 4.91667; PM_avw_bottom_right_sheet_mat: c1 0.0277667 -> 0.0138833, E 9.83333 -> 4.91667. One change.
