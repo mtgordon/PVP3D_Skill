@@ -1,4 +1,4 @@
-"""Batch C018 (2026-10-26, the colleague's long session). The remaining curve self-crossing after the curve band
+"""Batch C018 (2026-10-26, Stephen's long session). The remaining curve self-crossing after the curve band
 (C010 / C011: ~0.7-0.85 mm at mid-canal, rest z -9..+1) is the curve skin passing through the curve's own END faces, the
 faces whose nodes are tied into the AVW / PVW by the canal_wrap_ends linear constraints. Those faces are not in the curve
 self-contact (curve_all), by design (curve_cross_diag.py). Here a separate contact catches exactly that: primary = the curve

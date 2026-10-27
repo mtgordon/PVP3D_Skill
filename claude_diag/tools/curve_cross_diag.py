@@ -1,4 +1,4 @@
-"""Which surfaces take part in the deep (> 0.5 mm) curve crossings at the last state, and whether they are in the curve self-contact (curve_all_self): "PS" = in both primary and secondary, "-" = not in it. Rest gap = distance between the edge and the face at rest. (2026-10-25, the colleague.)
+"""Which surfaces take part in the deep (> 0.5 mm) curve crossings at the last state, and whether they are in the curve self-contact (curve_all_self): "PS" = in both primary and secondary, "-" = not in it. Rest gap = distance between the edge and the face at rest. (2026-10-25, Stephen.)
 usage: py -3.10 curve_cross_diag.py RUN"""
 import os,sys,numpy as np,xml.etree.ElementTree as ET
 sys.path.insert(0,'/home/claude/pvp3d_skill/claude_diag/tools')

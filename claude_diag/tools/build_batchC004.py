@@ -1,4 +1,4 @@
-"""Batch C004 (2026-10-25, the colleague's turn): OUTPUT ONLY - must-point plot output, so a run's .xplt stays small.
+"""Batch C004 (2026-10-25, Stephen's turn): OUTPUT ONLY - must-point plot output, so a run's .xplt stays small.
 L465-line runs write a plot state at every converged step (~2000-2700 steps x ~1 MB = 2-2.5 GB); FEBio 4.x ignored
 plot_stride 5 (C002). Here: plot_level PLOT_MAJOR_ITRS -> PLOT_MUST_POINTS, and dtmax 0.005 -> a load curve that is 0.005
 everywhere (so the maximum step is unchanged) with a point every DT (default 0.01) from 0 to the end time: the curve's points

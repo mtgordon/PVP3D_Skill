@@ -1,4 +1,4 @@
-"""Muscle-fibre directions from a 3D Slicer scene (.mrb) onto the FEBio levator (2026-10-24, the colleague's turn; Mark's e-mail:
+"""Muscle-fibre directions from a 3D Slicer scene (.mrb) onto the FEBio levator (2026-10-24, Stephen's turn; Mark's e-mail:
 Michigan's "Perin Complex EMRLD 32318 New LA Fibers.mrb" holds levator fibre directions + the pelvic-floor segmentations).
 
 An .mrb is a zip: a .mrml scene (XML listing every node: volumes, segmentations, models, markups, fibre bundles) plus the data

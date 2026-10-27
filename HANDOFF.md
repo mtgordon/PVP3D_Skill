@@ -5,13 +5,13 @@ New here? Read `notes/PROJECT_BRIEF.md` first.
 Each entry: date, who, what ran (full run names) and what it showed, what is still running and where, what is next, and who
 has the turn. Only the person who has the turn starts runs.
 
-## 2026-10-26, the colleague (long session 10-24 -> 10-26 noon; all runs on the colleague's PC)
-- **Turn:** passes to Mark once the colleague pushes this (her call). Nothing running. Detailed hand-off: `NEXT_SESSION_PROMPT_2026-10-26.md`; journal: README section 8.
+## 2026-10-26, Stephen (long session 10-24 -> 10-26 noon; all runs on Stephen's PC)
+- **Turn:** passes to Mark once Stephen pushes this (his call). Nothing running. Detailed hand-off: `NEXT_SESSION_PROMPT_2026-10-26.md`; journal: README section 8.
 - **Curve corner self-crossing fixed.** The curve hexes in the fold zone (rest z -45..-27) at the curve law x1.5
   (build_batchC003). **Minimal fix = `C017_C004_band15_tip`**: corner 0 edges > 1 mm (was 1.42), strap 0, PM arch 0,
   swelling 2.75x (was 4x). Checked in all three cases: MAXl_ant1 C017 Ba/Bp -10.1/-12.0, MAX `C021_L470_LA91_band15tip_mp`
   -9.3/-11.3, healthy `C020_C002_band15_tip_mp` -21.1/-24.1 (unprolapsed). Band x1.25-x2, tip-only to rest z +10: all work.
-- **Levator:** the colleague's L91 law + fixed arcus + LA contact settings (build_batchC001; C004 = L465 + levator) removes
+- **Levator:** Stephen's L91 law + fixed arcus + LA contact settings (build_batchC001; C004 = L465 + levator) removes
   L465's PM-arch crossing and halves the strap crossing; nothing through the levator (max 8.4 mm).
 - **Price:** less descent than C004 (-6.2/-7.2), but that extra descent was the corner collapse: softening the rest of the curve
   (C019) or the strap (C014) gives nothing back. MAX barely drops more than MAXl_ant1 (C012, C021), as in Mark's L470.
@@ -25,8 +25,8 @@ has the turn. Only the person who has the turn starts runs.
 - Output: C-runs from C004 on use must-point output (~145 MB .xplt instead of 2-2.5 GB; plot_stride is ignored by FEBio).
 - Bases in the repo (git add -f): C001-C024 .feb + .changes.txt (L26 is needed by pop_q_bump.py; symlink L149 if missing).
 
-## 2026-10-24, Mark (overnight session): turn passes to the colleague
-- **Turn:** the colleague. **Your focus (Mark): keep the curve corner from penetrating itself.**
+## 2026-10-24, Mark (overnight session): turn passes to Stephen
+- **Turn:** Stephen. **Your focus (Mark): keep the curve corner from penetrating itself.**
 - **New base: `L465_L431_ogmid`** = L431 (strap x1/3, source-width canal) with the AVW / PVW / curves in a "middle" Ogden law
   (tension = source, compression 1.6x softer). NORMAL TERMINATION t 1.5, settled; MAXl_ant1 Ba/Bp -2.7 / -4.0; healthy (L469)
   stays unprolapsed (all MAXl_ant1 = MAX-lite unless named; the full MAX case L470 ~-4.3 / -5.1 at t 0.95). Problem: the curve still gets caught on itself (~1.4 mm at rest z -31 left / -21 right; L431 ~1.24), the

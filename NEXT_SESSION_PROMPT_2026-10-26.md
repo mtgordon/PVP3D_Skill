@@ -1,12 +1,12 @@
-Continue the PVP3D FEBio work (hand-off 2026-10-26 noon, after the colleague's long session 10-24 -> 10-26; all C-runs ran
-on the colleague's PC through FEBio Studio). Work in claude_diag. The person whose turn it is steers; ASK before new runs.
+Continue the PVP3D FEBio work (hand-off 2026-10-26 noon, after Stephen's long session 10-24 -> 10-26; all C-runs ran
+on Stephen's PC through FEBio Studio). Work in claude_diag. The person whose turn it is steers; ASK before new runs.
 
 **Step 1:** `git pull`; invoke the project skill `abaqus-febio-fea-pipeline`; read the top entry of HANDOFF.md, this file,
 claude_diag/README_2026-10-09.md section 8 from "10-24" to the end, and notes/MEMORY_NOTES.md.
 
-## What the colleague's session did (Mark's email of 10-24: levator in all models, fix the curve corner, Slicer fibres)
+## What Stephen's session did (Mark's email of 10-24: levator in all models, fix the curve corner, Slicer fibres)
 1. **Levator package** (`build_batchC001.py SRC CASE NEW`; CASE = the source run's support case from build_batch244.CASES):
-   the colleague's L91 Yeoh levator (c1 0.0469 / c2 0.0657 / k 4 = 2x LA100, at the case percentage; NOT FAITHFUL), the 62
+   Stephen's L91 Yeoh levator (c1 0.0469 / c2 0.0657 / k 4 = 2x LA100, at the case percentage; NOT FAITHFUL), the 62
    ATLA / P-arcus chain nodes 23677-23738 fixed (NOT IN SOURCE), PVW_LA / walls_LA penalty 0.5 -> 2, search_tol 0.01 -> 0.1
    (NOT IN SOURCE). On L465 (C001 / C004): removes the PM-arch crossing, halves the strap crossing, levator max 8.4 mm.
    build_batch424 asserts the old LA law: switch cases BEFORE applying C001.

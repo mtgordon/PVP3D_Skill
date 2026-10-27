@@ -1,4 +1,4 @@
-"""Batch C008 (2026-10-25, the colleague's long session; Mark's corner idea 5: "the strap edge may drag the curve tip into
+"""Batch C008 (2026-10-25, Stephen's long session; Mark's corner idea 5: "the strap edge may drag the curve tip into
 the fold: spread / soften the strap's tip-side attachment"). curve_cross_diag.py on C004: the deepest curve self-crossings
 (1.1-1.4 mm) sit at the curve tip right next to the 5 nodes the strap (PM_avw_bottom_*_sheet_solid) shares with the curve
 (left 25896-25900, z -38..-41). Here the strap's penta6 elements whose centroid lies within RADIUS mm of those shared nodes

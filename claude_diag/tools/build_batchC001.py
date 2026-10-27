@@ -1,7 +1,7 @@
-"""Batch C001 (2026-10-24, the colleague's turn; Mark's e-mail: "take the levator ani from your model and use it in all
-future models"). Puts the colleague's L91_v18 levator ("LA package") onto any run of this line. Same mesh: the levator's
+"""Batch C001 (2026-10-24, Stephen's turn; Mark's e-mail: "take the levator ani from your model and use it in all
+future models"). Puts Stephen's L91_v18 levator ("LA package") onto any run of this line. Same mesh: the levator's
 1170 shells / 1233 nodes and the 62 arcus-chain nodes 23677-23738 are node-for-node identical to L91_v18 (checked, coords
-within 1e-6 mm), so nothing is remeshed. Three parts, applied together as ONE change (the colleague's levator):
+within 1e-6 mm), so nothing is remeshed. Three parts, applied together as ONE change (Stephen's levator):
 
  1. Arcus anchored to the pelvic sidewall: the 62 ATLA / posterior-arcus chain nodes fixed (L91 v2). Before, the chains
     hang on their end nodes and the ATLA / P-arcus springs only, so the levator's sides can swing out ("ballooning").
@@ -77,5 +77,5 @@ if __name__ == '__main__':
     t, log = convert(t, case)
     print(new); print('\n'.join(log))
     write(new, t, f'base: claude_diag/runs/{src}/{src}.feb (tools/build_batchC001.py, case {case})\n'
-                  'ONE change: the colleague\'s L91_v18 levator (Mark 10-24: "use it in all future models"):\n- '
+                  'ONE change: Stephen\'s L91_v18 levator (Mark 10-24: "use it in all future models"):\n- '
                   + '\n- '.join(log) + '\n')

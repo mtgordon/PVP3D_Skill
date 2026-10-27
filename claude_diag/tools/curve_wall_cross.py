@@ -1,5 +1,5 @@
 """Curve skin edges (exterior faces of the canal_wrap_hex domains) crossing WALL-ONLY faces (walls_LA_primary faces that are not all curve-hex nodes) at the last state.
-usage: py -3.10 curve_wall_cross.py RUN (2026-10-26, the colleague)"""
+usage: py -3.10 curve_wall_cross.py RUN (2026-10-26, Stephen)"""
 import os,sys,re,numpy as np
 sys.path.insert(0,'/home/claude/pvp3d_skill/claude_diag/tools')
 from curve_cross import surface, crossings, RUNS

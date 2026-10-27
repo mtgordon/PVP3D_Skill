@@ -1,4 +1,4 @@
-"""Batch C023 (2026-10-26, the colleague's long session). curve_cross_diag.py + tri_check on C017: the remaining deep curve
+"""Batch C023 (2026-10-26, Stephen's long session). curve_cross_diag.py + tri_check on C017: the remaining deep curve
 crossings (0.5-0.85 mm, mid-canal, rest z ~5-8 and the strap corner) are curve-skin edges (curve_all) passing through faces
 whose nodes are all in walls_LA_primary, i.e. the wall's outer surface where the curve ends are tied into the walls - a
 curve-vs-WALL crossing. The model has no curve-vs-wall contact (C018 / C022 aimed at the curve end faces and did nothing).

@@ -1,5 +1,5 @@
 """Which feb surfaces the faces pierced in the deep (> 0.5 mm) curve crossings belong to (tied nodes, curve_all, curve_endfaces of a C018/C022 feb).
-usage: py -3.10 curve_cross_tri_surfaces.py RUN FEB_WITH_curve_endfaces (2026-10-26, the colleague)"""
+usage: py -3.10 curve_cross_tri_surfaces.py RUN FEB_WITH_curve_endfaces (2026-10-26, Stephen)"""
 import os,sys,re,numpy as np,xml.etree.ElementTree as ET
 sys.path.insert(0,'/home/claude/pvp3d_skill/claude_diag/tools')
 from curve_cross import surface, crossings, RUNS

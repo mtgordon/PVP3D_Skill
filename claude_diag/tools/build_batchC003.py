@@ -1,4 +1,4 @@
-"""Batch C003 (2026-10-24, the colleague's turn; Mark's idea 1 for the corner, NEXT_SESSION_PROMPT_2026-10-24): a local
+"""Batch C003 (2026-10-24, Stephen's turn; Mark's idea 1 for the corner, NEXT_SESSION_PROMPT_2026-10-24): a local
 stiffer band in the curve elements that fold. The curve self-crossings sit at rest z -31 (left) / -21 (right); every curve
 hex (canal_wrap_hex_avw / _pvw / _pvw_fine; not the cervix part) whose rest centroid has ZLO <= z < ZHI moves to a twin
 domain <parent>_band with Curve_band = Curve_ogmid with c1, c2 and k x SCALE (same Ogden exponents, so the same
