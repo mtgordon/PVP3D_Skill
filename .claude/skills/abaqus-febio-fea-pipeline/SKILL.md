@@ -225,6 +225,14 @@ in mind constantly:
    self-contact `search_radius` of half the part's thickness or more grabs the part's own opposite face at rest.
    -> `convergence-debugging.md` ("A part that balloons or folds at an attachment"), `febio-xml-format.md` gotcha 30.
 
+15. **A run that ends with no termination line: read the solver's exit code before guessing.**
+   Exit 139 is a segmentation fault inside FEBio (no message, nothing in the OS logs). In a large contact model it
+   came during negative-Jacobian retries whose line-search steps had gone to zero; `ls_check_jacobians` 0 got past it,
+   ran faster early and gave the same answers, but sometimes segfaults on the first step, partly at random: retry
+   the start, then fall back to a two-step file (check on for the first few % of the load). Element ids must also
+   increase in file order, or FEBio stops reading. When refining part of a mesh, keep elements that touch tie
+   followers coarse (refining them stalls the solve). -> `febio-xml-format.md` gotchas 36-38, `lessons-learned.md`.
+
 ## Command-line basics
 
 ```bash
@@ -343,7 +351,7 @@ Read these as needed -- they're where the deep, hard-won detail lives:
   (anchored at both ends, its own material fitted to the connectors it
   replaces), and auditing connector families by both ends (item 12).
 - **`references/febio-xml-format.md`** -- FEBio's section layout and
-  twenty-eight specific XML/semantic gotchas, roughly ordered by how much time
+  thirty-eight specific XML/semantic gotchas, roughly ordered by how much time
   each one cost, including the node-ID-monotonicity rule, where `DiscreteSet`
   vs. `discrete_material` actually live, why a `<Surface>` can't be built from
   bare nodes, how to extract valid type-name keywords straight out of

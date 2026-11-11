@@ -1077,3 +1077,31 @@ over all the solid's nodes then looks several times worse than the shell version
 through from behind a facet with a large `search_radius`; that mechanism is plausible for a sheet that straddles its
 target, but it was not what the counts showed. Compare like with like (the bottom-layer sheet nodes), and run the
 solid-sheet version without the contact as the control.
+
+### 36. Element ids must increase in file order
+
+FEBio 4 refuses a model whose element ids go down anywhere in the file, even across `<Elements>` blocks: it stops reading with
+`tag "elem" (line N) : invalid value for attribute "id"` and no log (run it once by hand to see the message). Splitting an element
+in place (one parent row -> several child rows with new, higher ids) breaks this. Either put the children in a new `<Elements>`
+block after the last one (a new domain: copy the parent's `SolidDomain` / `ShellDomain` and any `body_load` that names the parent's
+`elem_set`), or renumber every element 1..N in file order. Renumbering is safe when nothing else names elements by id
+(`ElementData` is by local index `lid` within its set: copy each parent row once per child, in order).
+
+### 37. Different solver settings per stage: split the `<Control>` into analysis steps
+
+A model with one global `<Control>` can be rewritten as `<Step><step id="1">...<Control>` blocks with identical settings except the
+one that should change (for example a safe line search for the first few increments and a faster one after). Global boundary
+conditions, loads, contacts, constraints and load curves (absolute time) carry over unchanged; `time_steps` must add up to the
+original end time. The log prints each step's control block, so check it reports the intended values.
+
+### 38. `ls_check_jacobians`: what turning it off does
+
+With `<ls_check_jacobians>1</ls_check_jacobians>` (solid solver) the line search shortens a trial step that would invert an
+element. Several runs of a large contact model (FEBio 4.13, PARDISO, 8 threads) died with a segmentation fault (exit code 139, no
+error message, nothing in the Windows event logs) during negative-Jacobian retries whose line-search steps had gone to zero. With
+the check set to 0, the same models passed those points, ran ~1.6-2x faster early on, and gave the same answers (POP-Q values within
+0.1-0.3 mm at matched load). Accepted states are unchanged: FEBio still rejects any converged state with an inverted element.
+Costs: in a hard stretch a rejected trial becomes a whole failed step (crawls with thousands of retries), and some runs
+segfaulted in their very first step. That start-up segfault is partly random: identical files crashed on one start and ran on the
+next. A start wrapper (retry the start up to 3 times, then a two-step file with the check on for the first ~5 % of the load,
+then the check on throughout) handled every case.
